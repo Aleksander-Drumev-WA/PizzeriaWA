@@ -12,6 +12,8 @@ namespace WA.Pizza.Infrastructure.Data.Models
         // FK
         public int UserId { get; set; }
 
+        public User User { get; set; }
+
         public decimal Total { get; set; }
     }
 }

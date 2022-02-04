@@ -9,10 +9,13 @@ namespace WA.Pizza.Infrastructure.Data.Models
         // FK
         public int BasketId { get; set; }
 
+        public Basket Basket { get; set; }
+
         public int Quantity { get; set; }
 
         // FK
         public int CatalogItemId { get; set; }
 
+        public CatalogItem CatalogItem { get; set; }
     }
 }
