@@ -13,18 +13,11 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Basket> entity)
         {
-            // Maybe unnecessary because has PK next line.
-            entity
-                .Property(b => b.Id)
-                .IsRequired();
-
             entity.HasKey(b => b.Id);
 
             entity.HasOne(b => b.User)
-                .WithOne(b => b.Basket);
-
-            entity.Property(b => b.UserId)
-                .IsRequired(false);
+                .WithOne(b => b.Basket)
+                .HasForeignKey<Basket>(b => b.UserId);
         }
     }
 }

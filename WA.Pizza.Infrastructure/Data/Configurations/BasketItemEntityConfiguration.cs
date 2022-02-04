@@ -17,14 +17,16 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
             entity
                 .HasOne(bi => bi.Basket)
-                .WithMany(bi => bi.BasketItems);
+                .WithMany(bi => bi.BasketItems)
+                .HasForeignKey(bi => bi.BasketId);
 
             entity
                 .Property(bi => bi.Quantity)
                 .IsRequired();
 
             entity.HasOne(bi => bi.CatalogItem)
-                .WithMany(bi => bi.BasketItems);
+                .WithMany(bi => bi.BasketItems)
+                .HasForeignKey(bi => bi.CatalogItemId);
         }
     }
 }

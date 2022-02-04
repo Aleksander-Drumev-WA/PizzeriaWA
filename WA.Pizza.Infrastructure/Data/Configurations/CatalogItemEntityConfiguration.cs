@@ -17,7 +17,6 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
             entity
                 .Property(ci => ci.Name)
-                .HasColumnType("VARCHAR")
                 .HasMaxLength(150)
                 .IsRequired();
 
@@ -28,7 +27,6 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
             entity
                 .Property(ci => ci.PictureBytes)
-                .HasColumnType("VARCHAR")
                 .IsRequired();
 
             entity

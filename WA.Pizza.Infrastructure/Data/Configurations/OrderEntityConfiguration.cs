@@ -13,12 +13,12 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
             entity
                 .Property(o => o.CreatedOn)
-                .HasColumnType("DATETIME2")
                 .IsRequired();
 
             entity
                 .HasOne(o => o.User)
-                .WithMany(o => o.Orders);
+                .WithMany(o => o.Orders)
+                .HasForeignKey(o => o.UserId);
 
             entity
                 .Property(o => o.Total)
