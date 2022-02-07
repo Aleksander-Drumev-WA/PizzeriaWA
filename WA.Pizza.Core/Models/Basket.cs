@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
+using WA.Pizza.Core.ModelConfig;
 
-namespace WA.Pizza.Infrastructure.Data.Models
+namespace WA.Pizza.Core.Models
 {
-    public class Basket
+    public class Basket : BaseEntity
     {
         public Basket()
         {
             BasketItems = new HashSet<BasketItem>();
         }
-
-        public int Id { get; set; }
-
         public int? UserId { get; set; }
 
         public User User { get; set; }

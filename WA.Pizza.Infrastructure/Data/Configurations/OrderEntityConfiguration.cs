@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using WA.Pizza.Infrastructure.Data.Models;
+using WA.Pizza.Core.Models;
 
 namespace WA.Pizza.Infrastructure.Data.Configurations
 {

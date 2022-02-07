@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using WA.Pizza.Core.ModelConfig;
 
-namespace WA.Pizza.Infrastructure.Data.Models
+namespace WA.Pizza.Core.Models
 {
-    public class BasketItem
+    public class BasketItem : BaseEntity
     {
-        public int Id { get; set; }
 
         // FK
         public int BasketId { get; set; }

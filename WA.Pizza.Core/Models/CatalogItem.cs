@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
+using WA.Pizza.Core.ModelConfig;
 
-namespace WA.Pizza.Infrastructure.Data.Models
+namespace WA.Pizza.Core.Models
 {
-    public class CatalogItem
+    public class CatalogItem : BaseEntity
     {
         public CatalogItem()
         {
             BasketItems = new HashSet<BasketItem>();
         }
 
-        public int Id { get; set; }
-
-        // Shows warning and wants to be nullable.
         public string Name { get; set; }
 
         public decimal Price { get; set; }

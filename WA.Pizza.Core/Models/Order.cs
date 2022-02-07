@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using WA.Pizza.Core.ModelConfig;
 
-namespace WA.Pizza.Infrastructure.Data.Models
+namespace WA.Pizza.Core.Models
 {
-    public class Order
+    public class Order : BaseEntity
     {
-        public int Id { get; set; }
-
-        // BaseModel??
         public DateTime CreatedOn { get; set; }
 
         // FK

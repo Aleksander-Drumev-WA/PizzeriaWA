@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace WA.Pizza.Infrastructure.Data.Models
+namespace WA.Pizza.Core.Models
 {
     public class User : IdentityUser
     {
