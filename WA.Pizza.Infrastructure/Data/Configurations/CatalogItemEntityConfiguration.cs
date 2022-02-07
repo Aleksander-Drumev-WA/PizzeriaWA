@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using WA.Pizza.Core.Models;
 
-using static WA.Pizza.Core.ConstantValues;
-
 namespace WA.Pizza.Infrastructure.Data.Configurations
 {
     internal class CatalogItemEntityConfiguration : IEntityTypeConfiguration<CatalogItem>
@@ -15,7 +13,7 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
             entity
                 .Property(ci => ci.Name)
-                .HasMaxLength(CATALOG_ITEM_NAME_MAX_LENGTH)
+                .HasMaxLength(150)
                 .IsRequired();
 
             // Range??

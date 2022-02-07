@@ -4,6 +4,11 @@ namespace WA.Pizza.Core.Models
 {
     public class Order : BaseEntity
     {
+        public Order()
+        {
+            OrderItems = new List<BasketItem>();
+        }
+
         public DateTime CreatedOn { get; set; }
 
         // FK
@@ -12,5 +17,7 @@ namespace WA.Pizza.Core.Models
         public User User { get; set; }
 
         public decimal Total { get; set; }
+
+        public ICollection<BasketItem> OrderItems { get; set; }
     }
 }
