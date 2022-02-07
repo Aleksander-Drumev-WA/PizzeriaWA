@@ -8,11 +8,11 @@ using WA.Pizza.Core.Models;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
-    public class CatalogItemsService
+    public class CatalogDataService
     {
         private readonly AppDbContext dbContext;
 
-        public CatalogItemsService(AppDbContext dbContext)
+        public CatalogDataService(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
@@ -26,13 +26,12 @@ namespace WA.Pizza.Infrastructure.Data.Services
             }
         }
 
-        public async Task<IQueryable<CatalogItem>> GetAllAsync()
+        public IQueryable<CatalogItem> GetAllAsync()
         {
-            var catalogItems = await this.dbContext
-                .CatalogItems
-                .ToListAsync();
+            var catalogItems = this.dbContext
+                .CatalogItems;
 
-            return catalogItems.AsQueryable();
+            return catalogItems;
         }
 
         public async Task<CatalogItem> GetAsync(int Id)

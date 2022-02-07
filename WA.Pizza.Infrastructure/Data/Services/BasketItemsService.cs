@@ -26,13 +26,12 @@ namespace WA.Pizza.Infrastructure.Data.Services
             }
         }
 
-        public async Task<IQueryable<BasketItem>> GetAllAsync()
+        public IQueryable<BasketItem> GetAllAsync()
         {
-            var basketItems = await this.dbContext
-                .BasketItems
-                .ToListAsync();
+            var basketItems = this.dbContext
+                .BasketItems;
 
-            return basketItems.AsQueryable();
+            return basketItems;
         }
 
         public async Task<BasketItem> GetAsync(int Id)

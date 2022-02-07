@@ -11,9 +11,9 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Default")
     ));
 
-builder.Services.AddTransient<BasketService>();
-builder.Services.AddTransient<CatalogItemsService>();
-builder.Services.AddTransient<BasketItemsService>();
+builder.Services.AddScoped<BasketDataService>();
+builder.Services.AddScoped<CatalogDataService>();
+builder.Services.AddScoped<BasketItemsService>();
 
 var app = builder.Build();
 

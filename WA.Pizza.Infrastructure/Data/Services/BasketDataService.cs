@@ -8,11 +8,11 @@ using WA.Pizza.Core.Models;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
-    public class BasketService
+    public class BasketDataService
     {
         private readonly AppDbContext dbContext;
 
-        public BasketService(AppDbContext dbContext)
+        public BasketDataService(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
