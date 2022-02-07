@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WA.Pizza.Core.Abstractions;
 using WA.Pizza.Core.Models;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
-    public class BasketService : IBasketService<Basket>
+    public class BasketService
     {
         private readonly AppDbContext dbContext;
 
@@ -35,34 +34,14 @@ namespace WA.Pizza.Infrastructure.Data.Services
         {
             var basket = await this.dbContext
                 .Baskets
-                .Where(b => b.UserId == userId)
+                .Where(b => b.UserId == userId || b.Id == basketId)
                 .FirstOrDefaultAsync();
-
-            if (basket == null)
-            {
-                basket = await this.dbContext
-                    .Baskets
-                    .Where(b => b.Id == basketId)
-                    .FirstOrDefaultAsync();
-            }
 
             return basket;
         }
 
-        public async Task RemoveAsync(int? userId, int? basketId)
-        {
-            var basket  = await GetAsync(userId, basketId);
-
-            if (basket != null)
-            {
-                this.dbContext.Baskets.Remove(basket);
-            }
-        }
-
         public async Task<Basket> UpdateAsync(Basket entity)
         {
-            //dbContext.Entry(entity).State = EntityState.Modified;
-
             this.dbContext.Baskets.Update(entity);
             await dbContext.SaveChangesAsync();
 

@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WA.Pizza.Core.Abstractions;
 using WA.Pizza.Core.Models;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
-    public class CatalogItemsService : ICatalogItemsService<CatalogItem>
+    public class CatalogItemsService
     {
         private readonly AppDbContext dbContext;
 
@@ -27,13 +26,13 @@ namespace WA.Pizza.Infrastructure.Data.Services
             }
         }
 
-        public async Task<IEnumerable<CatalogItem>> GetAllAsync()
+        public async Task<IQueryable<CatalogItem>> GetAllAsync()
         {
             var catalogItems = await this.dbContext
                 .CatalogItems
                 .ToListAsync();
 
-            return catalogItems;
+            return catalogItems.AsQueryable();
         }
 
         public async Task<CatalogItem> GetAsync(int Id)

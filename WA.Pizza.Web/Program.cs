@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using WA.Pizza.Core.Abstractions;
-using WA.Pizza.Core.Models;
 using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Services;
 
@@ -13,9 +11,9 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Default")
     ));
 
-builder.Services.AddTransient<IBasketService<Basket>, BasketService>();
-builder.Services.AddTransient<ICatalogItemsService<CatalogItem>, CatalogItemsService>();
-builder.Services.AddTransient<IBasketItemsService<BasketItem>, BasketItemsService>();
+builder.Services.AddTransient<BasketService>();
+builder.Services.AddTransient<CatalogItemsService>();
+builder.Services.AddTransient<BasketItemsService>();
 
 var app = builder.Build();
 
