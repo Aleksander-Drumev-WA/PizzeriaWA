@@ -35,6 +35,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             var basket = await this.dbContext
                 .Baskets
                 .Where(b => b.UserId == userId || b.Id == basketId)
+                .Include(b => b.BasketItems)
                 .FirstOrDefaultAsync();
 
             return basket;

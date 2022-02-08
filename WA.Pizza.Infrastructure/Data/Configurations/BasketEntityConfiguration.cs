@@ -13,7 +13,8 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
             entity.HasOne(b => b.User)
                 .WithOne(b => b.Basket)
-                .HasForeignKey<Basket>(b => b.UserId);
+                .HasForeignKey<Basket>(b => b.UserId)
+                .IsRequired(false);
         }
     }
 }
