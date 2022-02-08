@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace WA.Pizza.Core.Models
 {
-    public class User : IdentityUser
+    public class User : IdentityUser<int>
     {
         public User()
         {
