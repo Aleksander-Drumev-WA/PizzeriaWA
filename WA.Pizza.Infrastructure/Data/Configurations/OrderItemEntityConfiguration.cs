@@ -9,15 +9,16 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<OrderItem> entity)
         {
-            entity.HasKey(oi => new { oi.OrderId, oi.BasketItemId});
-
             entity
                 .HasOne(oi => oi.Order)
-                .WithMany(o => o.OrderItems);
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(o => o.OrderId);
 
             entity
                 .HasOne(oi => oi.BasketItem)
-                .WithMany(bi => bi.OrderItems);
+                .WithMany(bi => bi.OrderItems)
+                .HasForeignKey(bi => bi.BasketItemId)
+                .IsRequired(false);
                 
         }
     }

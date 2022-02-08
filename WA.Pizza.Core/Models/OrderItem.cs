@@ -8,7 +8,7 @@ namespace WA.Pizza.Core.Models
 
         public Order Order { get; set; }
 
-        public int BasketItemId { get; set; }
+        public int? BasketItemId { get; set; }
 
         public BasketItem BasketItem { get; set; }
     }

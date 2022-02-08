@@ -31,13 +31,13 @@ namespace WA.Pizza.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int?>("UserId")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Baskets");
                 });
@@ -120,18 +120,23 @@ namespace WA.Pizza.Infrastructure.Migrations
 
             modelBuilder.Entity("WA.Pizza.Core.Models.OrderItem", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("BasketItemId")
+                        .HasColumnType("int");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BasketItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrderId", "BasketItemId");
+                    b.HasKey("Id");
 
                     b.HasIndex("BasketItemId");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("OrderItems");
                 });
@@ -195,9 +200,7 @@ namespace WA.Pizza.Infrastructure.Migrations
                 {
                     b.HasOne("WA.Pizza.Core.Models.User", "User")
                         .WithOne("Basket")
-                        .HasForeignKey("WA.Pizza.Core.Models.Basket", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WA.Pizza.Core.Models.Basket", "UserId");
 
                     b.Navigation("User");
                 });
@@ -236,9 +239,7 @@ namespace WA.Pizza.Infrastructure.Migrations
                 {
                     b.HasOne("WA.Pizza.Core.Models.BasketItem", "BasketItem")
                         .WithMany("OrderItems")
-                        .HasForeignKey("BasketItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BasketItemId");
 
                     b.HasOne("WA.Pizza.Core.Models.Order", "Order")
                         .WithMany("OrderItems")
