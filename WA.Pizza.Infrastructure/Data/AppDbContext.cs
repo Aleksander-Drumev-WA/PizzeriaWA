@@ -29,5 +29,7 @@ namespace WA.Pizza.Infrastructure.Data
         public DbSet<CatalogItem> CatalogItems { get; set; }
 
         public DbSet<BasketItem> BasketItems { get; set; }
+
+        public DbSet<OrderItem> OrderItems { get; set; }
     }
 }
