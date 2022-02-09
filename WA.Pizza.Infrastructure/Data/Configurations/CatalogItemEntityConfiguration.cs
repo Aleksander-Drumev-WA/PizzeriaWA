@@ -23,6 +23,7 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
             entity
                 .Property(ci => ci.PictureBytes)
+                .HasMaxLength(30000)
                 .IsRequired();
 
             entity
