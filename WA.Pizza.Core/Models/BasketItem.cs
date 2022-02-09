@@ -5,7 +5,6 @@ namespace WA.Pizza.Core.Models
 {
     public class BasketItem : BaseEntity
     {
-
         // FK
         public int BasketId { get; set; }
 

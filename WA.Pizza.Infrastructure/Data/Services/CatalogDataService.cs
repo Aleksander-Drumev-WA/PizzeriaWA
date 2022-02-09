@@ -10,59 +10,62 @@ namespace WA.Pizza.Infrastructure.Data.Services
 {
     public class CatalogDataService
     {
-        private readonly AppDbContext dbContext;
+        private readonly AppDbContext _dbContext;
 
         public CatalogDataService(AppDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task AddAsync(CatalogItem entity)
         {
             if (entity != null)
             {
-                await this.dbContext.CatalogItems.AddAsync(entity);
-                await this.dbContext.SaveChangesAsync();
+                await _dbContext.CatalogItems.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
             }
         }
 
+        // functionality for pagination?
         public IQueryable<CatalogItem> GetAllAsync()
         {
-            var catalogItems = this.dbContext
+            var catalogItems = _dbContext
                 .CatalogItems;
 
             return catalogItems;
         }
 
-        public async Task<CatalogItem> GetAsync(int Id)
-        {
-            var catalogItem = await this.dbContext
-                .CatalogItems
-                .Where(ci => ci.Id == Id)
-                .FirstOrDefaultAsync();
-
-            // If Id is null throw exception??
-
-            return catalogItem;
-        }
-
         public async Task RemoveAsync(int Id)
         {
-            var catalogItem = await this.GetAsync(Id);
+            var catalogItem = await _dbContext
+                .CatalogItems
+                .FirstAsync(ci => ci.Id == Id);
 
-            if (catalogItem != null)
+            if (catalogItem == null)
             {
-                this.dbContext.CatalogItems.Remove(catalogItem);
-                await this.dbContext.SaveChangesAsync();
+                throw new ArgumentNullException("Catalog item cannot be found or it is deleted.");
             }
+
+            _dbContext.CatalogItems.Remove(catalogItem);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<CatalogItem> UpdateAsync(CatalogItem entity)
+        public async Task<int> UpdateAsync(CatalogItem updatedCatalogItem)
         {
-            this.dbContext.CatalogItems.Update(entity);
-            await this.dbContext.SaveChangesAsync();
+            var catalogItem = await _dbContext
+                .CatalogItems
+                .FirstOrDefaultAsync(ci => ci.Id == updatedCatalogItem.Id);
 
-            return entity;
+            if (catalogItem == null)
+            {
+                throw new ArgumentNullException("Catalog item cannot be found or it is deleted.");
+            }
+
+            catalogItem = updatedCatalogItem;
+            _dbContext.CatalogItems.Update(catalogItem);
+            await _dbContext.SaveChangesAsync();
+
+            return updatedCatalogItem.Id;
         }
     }
 }
