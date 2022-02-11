@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WA.Pizza.Core.Models;
+using WA.Pizza.Infrastructure.DTO.Orders;
+
+using Mapster;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
@@ -56,10 +59,15 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             foreach (var currentCatalogItem in catalogItems)
             {
+                var quantity = currentCatalogItem.BasketItems.First(bi => bi.CatalogItemId == currentCatalogItem.Id).Quantity;
+
                 var orderItem = new OrderItem
                 {
                     OrderId = order.Id,
-                    CatalogItemId = currentCatalogItem.Id
+                    CatalogItemId = currentCatalogItem.Id,
+                    Name = currentCatalogItem.Name,
+                    Price = currentCatalogItem.Price,
+                    Quantity = quantity
                 };
 
                 await _dbContext.OrderItems.AddAsync(orderItem);
@@ -70,14 +78,14 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
 
 
-        public IQueryable<Order> GetMyOrdersAsync(int userId)
+        public ICollection<ListOrdersDTO> GetMyOrdersAsync(int userId)
         {
             var orders = _dbContext
             .Orders
             .Where(o => o.UserId == userId)
             .Include(o => o.OrderItems);
 
-            return orders;
+            return orders.ProjectToType<ListOrdersDTO>().ToList();
         }
 
         public async Task<int> UpdateOrderStatusAsync(int orderId, OrderStatus orderStatus)
@@ -94,15 +102,15 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return order.Id;
         }
 
-        public async Task<Order> GetOrderAsync(int orderId)
+        public async Task<GetSingleOrderDTO> GetOrderAsync(int orderId)
         {
             var order = await _dbContext
                 .Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.CatalogItem)
                 .FirstAsync(o => o.Id == orderId);
 
-            return order;
+            // Reusing GetSingleOrderDTO
+            return order.Adapt<GetSingleOrderDTO>();
         }
     }
 }
