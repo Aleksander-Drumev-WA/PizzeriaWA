@@ -8,8 +8,14 @@ namespace WA.Pizza.Core.Models
 
         public Order Order { get; set; }
 
-        public int? BasketItemId { get; set; }
+        public int? CatalogItemId { get; set; }
 
-        public BasketItem BasketItem { get; set; }
+        public CatalogItem CatalogItem { get; set; }
+
+        public string Name { get; set; }
+
+        public decimal Price { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

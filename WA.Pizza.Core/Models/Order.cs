@@ -6,7 +6,7 @@ namespace WA.Pizza.Core.Models
     {
         public Order()
         {
-            this.OrderItems = new List<OrderItem>();
+            OrderItems = new List<OrderItem>();
         }
 
         public DateTime CreatedOn { get; set; }
@@ -17,6 +17,8 @@ namespace WA.Pizza.Core.Models
         public User User { get; set; }
 
         public decimal Total { get; set; }
+
+        public OrderStatus OrderStatus { get; set; }
 
         public ICollection<OrderItem> OrderItems { get; set; }
     }

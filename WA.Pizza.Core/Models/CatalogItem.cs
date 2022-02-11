@@ -8,6 +8,7 @@ namespace WA.Pizza.Core.Models
         public CatalogItem()
         {
             BasketItems = new HashSet<BasketItem>();
+            OrderItems = new HashSet<OrderItem>();
         }
 
         public string Name { get; set; }
@@ -16,6 +17,10 @@ namespace WA.Pizza.Core.Models
 
         public string PictureBytes { get; set; }
 
+        public int StorageQuantity { get; set; }
+
         public ICollection<BasketItem> BasketItems { get; set; }
+
+        public ICollection<OrderItem> OrderItems { get; set; }
     }
 }

@@ -13,7 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
 
 builder.Services.AddScoped<BasketDataService>();
 builder.Services.AddScoped<CatalogDataService>();
-builder.Services.AddScoped<BasketItemsService>();
+builder.Services.AddScoped<OrderDataService>();
 
 var app = builder.Build();
 

@@ -1,52 +1,102 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WA.Pizza.Core.Models;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
     public class BasketDataService
     {
-        private readonly AppDbContext dbContext;
+        private readonly AppDbContext _dbContext;
 
         public BasketDataService(AppDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
-        public async Task AddAsync(int? userId)
+
+
+        public async Task<ICollection<BasketItem>> GetBasketItems(int basketId)
         {
-            var basket = new Basket();
+            ICollection<BasketItem>? basketItems = await _dbContext
+                .BasketItems
+                .Where(bi => bi.BasketId == basketId)
+                .Include(bi => bi.CatalogItem)
+                .ToListAsync();
+
+            return basketItems;
+        }
+
+        public async Task<BasketItem> AddItemToBasketAsync(int? userId, int? basketId, CatalogItem item)
+        {
+            Basket? basket = await _dbContext
+                .Baskets
+                .Where(b => b.UserId == userId || b.Id == basketId)
+                .FirstOrDefaultAsync();
+
+            if (basket == null)
+            {
+                basket = await AssignBasketAsync(userId);
+            }
+
+            BasketItem? basketItem = new BasketItem
+            {
+                BasketId = basket.Id,
+                // I think I need DTO for this to set it properly (quantity)
+                Quantity = 1,
+                CatalogItemId = item.Id
+            };
+
+            await _dbContext.BasketItems.AddAsync(basketItem);
+            await _dbContext.SaveChangesAsync();
+
+            return basketItem;
+        }
+
+        public async Task<int> UpdateItemAsync(BasketItem updatedBasketItem)
+        {
+            BasketItem? localBasketItem = await _dbContext
+                .BasketItems
+                .FirstAsync(bi => bi.Id == updatedBasketItem.Id);
+
+            if (localBasketItem == null)
+            {
+                throw new ArgumentNullException("Basket item cannot be found or deleted.");
+            }
+
+            localBasketItem = updatedBasketItem;
+            _dbContext.BasketItems.Update(localBasketItem);
+            await _dbContext.SaveChangesAsync();
+
+
+            return localBasketItem.Id;
+        }
+
+        public async Task RemoveBasketItemAsync(int basketItemId)
+        {
+            BasketItem? basketItem = await _dbContext
+                .BasketItems
+                .Where(bi => bi.Id == basketItemId)
+                .FirstOrDefaultAsync();
+
+            if (basketItem != null)
+            {
+                _dbContext.BasketItems.Remove(basketItem);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task<Basket> AssignBasketAsync(int? userId)
+        {
+            Basket? basket = new Basket();
 
             if (userId != null)
             {
                 basket.UserId = userId.Value;
+                await _dbContext.Baskets.AddAsync(basket);
+                await _dbContext.SaveChangesAsync();
             }
 
-            await this.dbContext.Baskets.AddAsync(basket);
-            await this.dbContext.SaveChangesAsync();
-        }
-
-        public async Task<Basket> GetAsync(int? userId, int? basketId)
-        {
-            var basket = await this.dbContext
-                .Baskets
-                .Where(b => b.UserId == userId || b.Id == basketId)
-                .Include(b => b.BasketItems)
-                .FirstOrDefaultAsync();
 
             return basket;
-        }
-
-        public async Task<Basket> UpdateAsync(Basket entity)
-        {
-            this.dbContext.Baskets.Update(entity);
-            await dbContext.SaveChangesAsync();
-
-            return entity;
         }
     }
 }
