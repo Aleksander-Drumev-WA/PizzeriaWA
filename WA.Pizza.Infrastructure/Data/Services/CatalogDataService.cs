@@ -27,10 +27,11 @@ namespace WA.Pizza.Infrastructure.Data.Services
         }
 
         // functionality for pagination?
-        public IQueryable<CatalogItem> GetAllAsync()
+        public async Task<ICollection<CatalogItem>> GetAllAsync()
         {
-            var catalogItems = _dbContext
-                .CatalogItems;
+            var catalogItems = await _dbContext
+                .CatalogItems
+                .ToListAsync();
 
             return catalogItems;
         }

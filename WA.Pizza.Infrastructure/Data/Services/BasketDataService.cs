@@ -14,25 +14,15 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
 
 
-        public IQueryable<BasketItem> GetBasketItems(int basketId)
+        public async Task<ICollection<BasketItem>> GetBasketItems(int basketId)
         {
-            IQueryable<BasketItem>? basket = _dbContext
+            ICollection<BasketItem>? basketItems = await _dbContext
                 .BasketItems
                 .Where(bi => bi.BasketId == basketId)
                 .Include(bi => bi.CatalogItem)
-                .Select(bi => new BasketItem
-                {
-                    Id = bi.Id,
-                    Quantity = bi.Quantity,
-                    CatalogItem = new CatalogItem
-                    {
-                        Name = bi.CatalogItem.Name,
-                        Price = bi.CatalogItem.Price,
-                        PictureBytes = bi.CatalogItem.PictureBytes
-                    }
-                });
+                .ToListAsync();
 
-            return basket;
+            return basketItems;
         }
 
         public async Task<BasketItem> AddItemToBasketAsync(int? userId, int? basketId, CatalogItem item)
@@ -101,10 +91,10 @@ namespace WA.Pizza.Infrastructure.Data.Services
             if (userId != null)
             {
                 basket.UserId = userId.Value;
+                await _dbContext.Baskets.AddAsync(basket);
+                await _dbContext.SaveChangesAsync();
             }
 
-            await _dbContext.Baskets.AddAsync(basket);
-            await _dbContext.SaveChangesAsync();
 
             return basket;
         }

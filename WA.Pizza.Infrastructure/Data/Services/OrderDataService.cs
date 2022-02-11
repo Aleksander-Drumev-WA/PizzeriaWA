@@ -45,10 +45,10 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             var order = new Order
             {
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 Total = total,
                 UserId = basket.UserId.Value,
-                OrderStatus = OrderStatus.Completed
+                OrderStatus = OrderStatus.New
             };
 
 
@@ -72,54 +72,21 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
         public IQueryable<Order> GetMyOrdersAsync(int userId)
         {
-            //var orders = _dbContext
-            //    .Orders
-            //    .Where(o => o.UserId == userId)
-            //    .Include(o => o.OrderItems)
-            //    .Select(o => new Order
-            //    {
-            //        Id = o.Id,
-            //        CreatedOn = o.CreatedOn,
-            //        Total = o.Total,
-            //        OrderItems = o.OrderItems.Select(o => new OrderItem
-            //        {
-            //            BasketItem = new BasketItem
-            //            {
-            //                Id = o.BasketItem.Id,
-            //                Quantity = o.BasketItem.Quantity,
-            //                CatalogItem = new CatalogItem
-            //                {
-            //                    Name = o.BasketItem.CatalogItem.Name,
-            //                    Price = o.BasketItem.CatalogItem.Price,
-            //                    PictureBytes = o.BasketItem.CatalogItem.PictureBytes
-            //                }
-            //            }
-            //        }).ToList()
-            //    });
-
             var orders = _dbContext
             .Orders
             .Where(o => o.UserId == userId)
-            .Include(o => o.OrderItems)
-            .ThenInclude(bi => bi.CatalogItem);
+            .Include(o => o.OrderItems);
 
             return orders;
         }
 
-        public async Task<int> UpdateOrderStatusAsync(int orderId, bool cancel)
+        public async Task<int> UpdateOrderStatusAsync(int orderId, OrderStatus orderStatus)
         {
             var order = await _dbContext
                 .Orders
                 .FirstAsync(o => o.Id == orderId);
 
-            if (cancel)
-            {
-                order.OrderStatus = OrderStatus.Canceled;
-            }
-            else
-            {
-                order.OrderStatus = OrderStatus.Completed;
-            }
+            order.OrderStatus = orderStatus;
 
             _dbContext.Orders.Update(order);
             await _dbContext.SaveChangesAsync();

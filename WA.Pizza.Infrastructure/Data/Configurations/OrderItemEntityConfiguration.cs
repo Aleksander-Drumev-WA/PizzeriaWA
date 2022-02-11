@@ -19,7 +19,16 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
                 .WithMany(bi => bi.OrderItems)
                 .HasForeignKey(bi => bi.CatalogItemId)
                 .IsRequired(false);
-                
+
+            entity.Property(oi => oi.Name)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.Property(oi => oi.Price)
+                .IsRequired();
+
+            entity.Property(oi => oi.Quantity)
+                .IsRequired();
         }
     }
 }
