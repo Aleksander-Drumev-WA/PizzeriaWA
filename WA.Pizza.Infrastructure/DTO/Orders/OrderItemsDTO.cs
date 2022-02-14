@@ -1,6 +1,6 @@
 ﻿namespace WA.Pizza.Infrastructure.DTO.Orders
 {
-    public record DetailsOrderItemDTO
+    public record OrderItemsDTO
     {
         public string Name { get; init; }
 

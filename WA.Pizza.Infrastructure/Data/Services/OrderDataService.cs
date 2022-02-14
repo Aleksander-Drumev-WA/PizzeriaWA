@@ -102,15 +102,16 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return order.Id;
         }
 
-        public async Task<GetSingleOrderDTO> GetOrderAsync(int orderId)
+        public async Task<OrderDTO> GetOrderAsync(int orderId)
         {
             var order = await _dbContext
                 .Orders
                 .Include(o => o.OrderItems)
+                .ProjectToType<OrderDTO>()
                 .FirstAsync(o => o.Id == orderId);
 
-            // Reusing GetSingleOrderDTO
-            return order.Adapt<GetSingleOrderDTO>();
+            // ProjectToType
+            return order;
         }
     }
 }

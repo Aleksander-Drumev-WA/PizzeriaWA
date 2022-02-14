@@ -8,6 +8,6 @@ namespace WA.Pizza.Infrastructure.DTO.Orders
 
         public OrderStatus Status { get; init; }
 
-        public DetailsOrderItemDTO OrderItems { get; init; }
+        public OrderItemsDTO OrderItems { get; init; }
     }
 }

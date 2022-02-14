@@ -19,7 +19,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             this._dbContext = dbContext;
         }
 
-        public async Task AddAsync(CreateCatalogItemDTO dto)
+        public async Task AddAsync(CatalogItemDTO dto)
         {
             if (dto != null)
             {
@@ -36,9 +36,19 @@ namespace WA.Pizza.Infrastructure.Data.Services
         {
             var catalogItems = _dbContext
                 .CatalogItems;
-            
+
             return catalogItems.ProjectToType<ListCatalogItemsDTO>().ToList();
         }
+
+        public async Task<CatalogItemDTO> GetOneAsync(int catalogItemId)
+		{
+            var catalogItem = await _dbContext
+                .CatalogItems
+                .ProjectToType<CatalogItemDTO>()
+                .FirstAsync(ci => ci.Id == catalogItemId);
+
+            return catalogItem;
+		}
 
         public async Task RemoveAsync(int Id)
         {
@@ -55,10 +65,9 @@ namespace WA.Pizza.Infrastructure.Data.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> UpdateAsync(UpdateCatalogItemDTO updatedCatalogItem)
+        public async Task<int> UpdateAsync(CatalogItemDTO updatedCatalogItem)
         {
             var catalogItem = updatedCatalogItem.Adapt<CatalogItem>();
-
 
             if (catalogItem == null)
             {

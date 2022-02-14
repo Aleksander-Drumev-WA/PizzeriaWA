@@ -6,8 +6,11 @@ namespace WA.Pizza.Infrastructure.DTO.Basket
     {
         public int Quantity { get; init; }
 
-        public GetCatalogItemsDTO CatalogItem { get; init; }
+        public string Name { get; init; }
 
+        public decimal Price { get; init; }
+
+        public string PictureBytes { get; init; }
 
     }
 }

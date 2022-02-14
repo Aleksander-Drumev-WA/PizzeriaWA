@@ -18,7 +18,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
 
 
-        public ICollection<GetBasketDTO> GetBasketItems(int basketId)
+        public ICollection<BasketDTO> GetBasketItems(int basketId)
         {
             IQueryable<Basket>? basket = _dbContext
                 .Baskets
@@ -26,26 +26,21 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 .Include(b => b.BasketItems)
                 .ThenInclude(bi => bi.CatalogItem);
 
-            return basket.ProjectToType<GetBasketDTO>().ToList();
+            return basket.ProjectToType<BasketDTO>().ToList();
         }
 
-        public async Task<int> AddItemToBasketAsync(int? userId, int? basketId, CatalogItemToBasketItemDTO dto)
+        public async Task<int> AddItemToBasketAsync(int? userId, CatalogItemToBasketItemRequest request)
         {
             Basket? basket = await _dbContext
                 .Baskets
-                .FirstAsync(b => b.UserId == userId || b.Id == basketId);
+                .FirstAsync(b => b.UserId == userId || b.Id == request.BasketId);
 
             if (basket == null)
             {
                 basket = await AssignBasketAsync(userId);
             }
 
-            BasketItem? basketItem = new BasketItem
-            {
-                BasketId = basket.Id,
-                Quantity = dto.Quantity,
-                CatalogItemId = dto.CatalogItemId
-            };
+            var basketItem = request.Adapt<BasketItem>();
 
             await _dbContext.BasketItems.AddAsync(basketItem);
             await _dbContext.SaveChangesAsync();
@@ -56,16 +51,13 @@ namespace WA.Pizza.Infrastructure.Data.Services
         // I think user can only change the quantity
         public async Task<int> UpdateItemAsync(UpdateBasketItemDTO updatedBasketItem)
         {
-            BasketItem? localBasketItem = await _dbContext
-                .BasketItems
-                .FirstAsync(bi => bi.Id == updatedBasketItem.Id);
+            var localBasketItem = updatedBasketItem.Adapt<BasketItem>();
 
             if (localBasketItem == null)
             {
                 throw new ArgumentNullException("Basket item cannot be found or deleted.");
             }
 
-            localBasketItem.Quantity = updatedBasketItem.Quantity;
             _dbContext.BasketItems.Update(localBasketItem);
             await _dbContext.SaveChangesAsync();
 
