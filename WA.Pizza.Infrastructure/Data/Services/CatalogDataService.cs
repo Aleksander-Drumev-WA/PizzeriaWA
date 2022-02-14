@@ -40,7 +40,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return catalogItems.ProjectToType<ListCatalogItemsDTO>().ToList();
         }
 
-        public async Task<CatalogItemDTO> GetOneAsync(int catalogItemId)
+        public async Task<CatalogItemDTO> GetOneCatalogItemAsync(int catalogItemId)
 		{
             var catalogItem = await _dbContext
                 .CatalogItems

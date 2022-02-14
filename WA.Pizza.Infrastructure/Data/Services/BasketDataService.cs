@@ -18,7 +18,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
 
 
-        public ICollection<BasketDTO> GetBasketItems(int basketId)
+        public ICollection<BasketDTO> GetBasketWithBasketItems(int basketId)
         {
             IQueryable<Basket>? basket = _dbContext
                 .Baskets
