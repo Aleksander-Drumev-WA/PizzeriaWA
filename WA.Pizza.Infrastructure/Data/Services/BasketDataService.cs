@@ -49,7 +49,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
         }
 
         // I think user can only change the quantity
-        public async Task<int> UpdateItemAsync(UpdateBasketItemDTO updatedBasketItem)
+        public async Task<int> UpdateItemAsync(BasketItemDTO updatedBasketItem)
         {
             var localBasketItem = updatedBasketItem.Adapt<BasketItem>();
 

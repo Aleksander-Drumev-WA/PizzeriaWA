@@ -1,9 +1,9 @@
-﻿using WA.Pizza.Infrastructure.DTO.Catalog;
-
-namespace WA.Pizza.Infrastructure.DTO.Basket
+﻿namespace WA.Pizza.Infrastructure.DTO.Basket
 {
-    public record GetBasketItemsDTO
+    public record BasketItemDTO
     {
+        public int Id { get; init; }
+
         public int Quantity { get; init; }
 
         public string Name { get; init; }
@@ -11,6 +11,5 @@ namespace WA.Pizza.Infrastructure.DTO.Basket
         public decimal Price { get; init; }
 
         public string PictureBytes { get; init; }
-
     }
 }

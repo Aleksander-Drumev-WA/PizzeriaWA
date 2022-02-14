@@ -46,17 +46,16 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 			// Basket
 			TypeAdapterConfig<Basket, BasketDTO>
 				.NewConfig()
-				//Include()?
 				.Map(dest => dest.UserName, src => src.User.UserName)
 				.Map(dest => dest.BasketItems, src => src.BasketItems);
 
-			// Not sure how to do it with collections. Can't find documentation about it.
-
-			//.Map(dest => dest.BasketItems.Select(bi => bi.Quantity), src => src.BasketItems.Select(bi => bi.Quantity))
-			//.Map(dest => dest.BasketItems.Select(bi => bi.Name), src => src.BasketItems.Select(bi => bi.CatalogItem.Name))
-			//.Map(dest => dest.BasketItems.Select(bi => bi.Price), src => src.BasketItems.Select(bi => bi.CatalogItem.Price))
-			//.Map(dest => dest.BasketItems.Select(bi => bi.PictureBytes), src => src.BasketItems.Select(bi => bi.CatalogItem.PictureBytes));
-
+			TypeAdapterConfig<BasketItem, BasketItemDTO>
+				.NewConfig()
+				.Map(dest => dest.Id, src => src.Id)
+				.Map(dest => dest.Quantity, src => src.Quantity)
+				.Map(dest => dest.Name, src => src.CatalogItem.Name)
+				.Map(dest => dest.Price, src => src.CatalogItem.Price.ToString("0.00"))
+				.Map(dest => dest.PictureBytes, src => src.CatalogItem.PictureBytes);
 
 			TypeAdapterConfig<CatalogItemToBasketItemRequest, BasketItem>
 				.NewConfig()
@@ -64,9 +63,12 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
 				.Map(dest => dest.Quantity, src => src.Quantity);
 
-			TypeAdapterConfig<UpdateBasketItemDTO, BasketItem>
+			TypeAdapterConfig<BasketItemDTO, BasketItem>
 				.NewConfig()
 				.Ignore(dest => dest.Id)
+				.Ignore(dest => dest.CatalogItem.Name)
+				.Ignore(dest => dest.CatalogItem.Price)
+				.Ignore(dest => dest.CatalogItem.PictureBytes)
 				.Map(dest => dest.Quantity, src => src.Quantity);
 
 
@@ -84,8 +86,13 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Map(dest => dest.Id, src => src.Id)
 				.Map(dest => dest.Total, src => src.Total.ToString("0.00"))
 				.Map(dest => dest.Status, src => src.OrderStatus.ToString())
-				// Not sure about collections.
 				.Map(dest => dest.OrderItems, src => src.OrderItems);
+
+			TypeAdapterConfig<OrderItem, OrderItemsDTO>
+				.NewConfig()
+				.Map(dest => dest.Name, src => src.Name)
+				.Map(dest => dest.Price, src => src.Price.ToString("0.00"))
+				.Map(dest => dest.Quantity, src => src.Quantity);
 		}
 	}
 }

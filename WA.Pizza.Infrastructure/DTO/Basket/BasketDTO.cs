@@ -2,7 +2,7 @@
 {
     public record BasketDTO
     {
-        public ICollection<GetBasketItemsDTO> BasketItems { get; init; }
+        public ICollection<BasketItemDTO> BasketItems { get; init; }
 
 		public string UserName { get; init; }
 	}

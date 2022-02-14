@@ -4,9 +4,9 @@ namespace WA.Pizza.Infrastructure.DTO.Orders
 {
     public record OrderDTO
     {
-		public int Id { get; init; }
+        public int Id { get; init; }
 
-		public decimal Total { get; init; }
+        public decimal Total { get; init; }
 
         public OrderStatus Status { get; init; }
 
