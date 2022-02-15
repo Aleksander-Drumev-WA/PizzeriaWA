@@ -1,6 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WA.Pizza.Core.Models;
 
+using Mapster;
+using WA.Pizza.Infrastructure.DTO.Basket;
+using WA.Pizza.Infrastructure.DTO.Catalog;
+
 namespace WA.Pizza.Infrastructure.Data.Services
 {
     public class BasketDataService
@@ -14,55 +18,45 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
 
 
-        public async Task<ICollection<BasketItem>> GetBasketItems(int basketId)
+        public ICollection<BasketDTO> GetBasketWithBasketItems(int basketId)
         {
-            ICollection<BasketItem>? basketItems = await _dbContext
-                .BasketItems
-                .Where(bi => bi.BasketId == basketId)
-                .Include(bi => bi.CatalogItem)
-                .ToListAsync();
+            IQueryable<Basket>? basket = _dbContext
+                .Baskets
+                .Where(b => b.Id == basketId)
+                .Include(b => b.BasketItems);
 
-            return basketItems;
+            return basket.ProjectToType<BasketDTO>().ToList();
         }
 
-        public async Task<BasketItem> AddItemToBasketAsync(int? userId, int? basketId, CatalogItem item)
+        public async Task<int> AddItemToBasketAsync(int? userId, CatalogItemToBasketItemRequest request)
         {
             Basket? basket = await _dbContext
                 .Baskets
-                .Where(b => b.UserId == userId || b.Id == basketId)
-                .FirstOrDefaultAsync();
+                .FirstAsync(b => b.UserId == userId || b.Id == request.BasketId);
 
             if (basket == null)
             {
                 basket = await AssignBasketAsync(userId);
             }
 
-            BasketItem? basketItem = new BasketItem
-            {
-                BasketId = basket.Id,
-                // I think I need DTO for this to set it properly (quantity)
-                Quantity = 1,
-                CatalogItemId = item.Id
-            };
+            var basketItem = request.Adapt<BasketItem>();
 
             await _dbContext.BasketItems.AddAsync(basketItem);
             await _dbContext.SaveChangesAsync();
 
-            return basketItem;
+            return basketItem.Id;
         }
 
-        public async Task<int> UpdateItemAsync(BasketItem updatedBasketItem)
+        // I think user can only change the quantity
+        public async Task<int> UpdateItemAsync(BasketItemDTO updatedBasketItem)
         {
-            BasketItem? localBasketItem = await _dbContext
-                .BasketItems
-                .FirstAsync(bi => bi.Id == updatedBasketItem.Id);
+            var localBasketItem = updatedBasketItem.Adapt<BasketItem>();
 
             if (localBasketItem == null)
             {
                 throw new ArgumentNullException("Basket item cannot be found or deleted.");
             }
 
-            localBasketItem = updatedBasketItem;
             _dbContext.BasketItems.Update(localBasketItem);
             await _dbContext.SaveChangesAsync();
 
