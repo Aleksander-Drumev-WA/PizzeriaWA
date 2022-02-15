@@ -1,6 +1,10 @@
+using Mapster;
 using Microsoft.EntityFrameworkCore;
+using WA.Pizza.Core.Models;
 using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Services;
+using WA.Pizza.Infrastructure.DTO.Catalog;
+using WA.Pizza.Infrastructure.Services.Mapster;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +18,9 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
 builder.Services.AddScoped<BasketDataService>();
 builder.Services.AddScoped<CatalogDataService>();
 builder.Services.AddScoped<OrderDataService>();
+
+MappingConfig.Configure();
+
 
 var app = builder.Build();
 
