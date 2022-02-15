@@ -90,6 +90,8 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 
 			TypeAdapterConfig<OrderItem, OrderItemsDTO>
 				.NewConfig()
+				.Map(dest => dest.OrderId, src => src.OrderId)
+				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
 				.Map(dest => dest.Name, src => src.Name)
 				.Map(dest => dest.Price, src => src.Price.ToString("0.00"))
 				.Map(dest => dest.Quantity, src => src.Quantity);

@@ -23,8 +23,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             IQueryable<Basket>? basket = _dbContext
                 .Baskets
                 .Where(b => b.Id == basketId)
-                .Include(b => b.BasketItems)
-                .ThenInclude(bi => bi.CatalogItem);
+                .Include(b => b.BasketItems);
 
             return basket.ProjectToType<BasketDTO>().ToList();
         }
