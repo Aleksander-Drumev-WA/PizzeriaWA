@@ -32,19 +32,28 @@ namespace WA.Pizza.Infrastructure.Data.Services
         {
             Basket? basket = await _dbContext
                 .Baskets
-                .FirstAsync(b => b.UserId == userId || b.Id == request.BasketId);
+                .FirstOrDefaultAsync(b => b.UserId == userId || b.Id == request.BasketId);
+
+            var catalogItem = await _dbContext
+                .CatalogItems
+                .FirstAsync(ci => ci.Id == request.CatalogItemId);
 
             if (basket == null)
             {
                 basket = await AssignBasketAsync(userId);
             }
+            if (catalogItem.StorageQuantity < request.Quantity)
+            {
+                throw new ArgumentException("Not enough stock in storage.");
+            }
 
             var basketItem = request.Adapt<BasketItem>();
+            basketItem.BasketId = basket.Id;
 
             await _dbContext.BasketItems.AddAsync(basketItem);
             await _dbContext.SaveChangesAsync();
 
-            return basketItem.Id;
+            return basket.Id;
         }
 
         // I think user can only change the quantity
@@ -61,7 +70,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             await _dbContext.SaveChangesAsync();
 
 
-            return localBasketItem.Id;
+            return localBasketItem.Quantity;
         }
 
         public async Task RemoveBasketItemAsync(int basketItemId)
@@ -85,10 +94,10 @@ namespace WA.Pizza.Infrastructure.Data.Services
             if (userId != null)
             {
                 basket.UserId = userId.Value;
-                await _dbContext.Baskets.AddAsync(basket);
-                await _dbContext.SaveChangesAsync();
             }
 
+            await _dbContext.Baskets.AddAsync(basket);
+            await _dbContext.SaveChangesAsync();
 
             return basket;
         }

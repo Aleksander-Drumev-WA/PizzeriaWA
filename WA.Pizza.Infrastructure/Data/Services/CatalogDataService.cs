@@ -19,20 +19,23 @@ namespace WA.Pizza.Infrastructure.Data.Services
             this._dbContext = dbContext;
         }
 
-        public async Task AddAsync(CatalogItemDTO dto)
+        public async Task<int> AddAsync(CatalogItemDTO dto)
         {
-            if (dto != null)
+            if (dto == null)
             {
-                var catalogItem = dto.Adapt<CatalogItem>();
-                // I'm not sure about this row ^
-
-                await _dbContext.CatalogItems.AddAsync(catalogItem);
-                await _dbContext.SaveChangesAsync();
+                throw new ArgumentNullException("No data provided for item creation.");
             }
+
+            var catalogItem = dto.Adapt<CatalogItem>();
+
+            await _dbContext.CatalogItems.AddAsync(catalogItem);
+            await _dbContext.SaveChangesAsync();
+
+            return catalogItem.Id;
         }
 
         // functionality for pagination?
-        public ICollection<ListCatalogItemsDTO> GetAllAsync()
+        public ICollection<ListCatalogItemsDTO> GetAll()
         {
             var catalogItems = _dbContext
                 .CatalogItems;
@@ -41,14 +44,14 @@ namespace WA.Pizza.Infrastructure.Data.Services
         }
 
         public async Task<CatalogItemDTO> GetOneCatalogItemAsync(int catalogItemId)
-		{
+        {
             var catalogItem = await _dbContext
                 .CatalogItems
                 .ProjectToType<CatalogItemDTO>()
                 .FirstAsync(ci => ci.Id == catalogItemId);
 
             return catalogItem;
-		}
+        }
 
         public async Task RemoveAsync(int Id)
         {
@@ -77,7 +80,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             _dbContext.CatalogItems.Update(catalogItem);
             await _dbContext.SaveChangesAsync();
 
-            return updatedCatalogItem.Id;
+            return catalogItem.Id;
         }
     }
 }

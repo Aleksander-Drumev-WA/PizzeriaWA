@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WA.Pizza.Web", "WA.Pizza.We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WA.Pizza.Infrastructure", "WA.Pizza.Infrastructure\WA.Pizza.Infrastructure.csproj", "{0B86BE68-758D-404E-BFC5-DF52082D3006}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WA.Pizza.Core", "WA.Pizza.Core\WA.Pizza.Core.csproj", "{E621E5CB-4BA8-45C2-9EC8-0BB136B7DE38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WA.Pizza.Core", "WA.Pizza.Core\WA.Pizza.Core.csproj", "{E621E5CB-4BA8-45C2-9EC8-0BB136B7DE38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pizzeria.Tests", "Pizzeria.Tests\Pizzeria.Tests.csproj", "{A9934344-9BCE-4112-BBA1-ED01037D9812}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{E621E5CB-4BA8-45C2-9EC8-0BB136B7DE38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E621E5CB-4BA8-45C2-9EC8-0BB136B7DE38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E621E5CB-4BA8-45C2-9EC8-0BB136B7DE38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9934344-9BCE-4112-BBA1-ED01037D9812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9934344-9BCE-4112-BBA1-ED01037D9812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9934344-9BCE-4112-BBA1-ED01037D9812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9934344-9BCE-4112-BBA1-ED01037D9812}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
