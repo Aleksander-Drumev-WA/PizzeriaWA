@@ -3,9 +3,16 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WA.Pizza.Infrastructure.Data;
+using Xunit;
 
 namespace Pizzeria.Tests.Fixtures
 {
+    [CollectionDefinition("Database collection")]
+    public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
+    {
+
+    }
+
     public class DatabaseFixture : IDisposable
     {
         private DbContextOptions<AppDbContext> _options { get; set; }
