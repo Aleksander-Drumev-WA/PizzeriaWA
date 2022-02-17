@@ -3,6 +3,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WA.Pizza.Infrastructure.Data;
+using WA.Pizza.Infrastructure.Services.Mapster;
 using Xunit;
 
 namespace Pizzeria.Tests.Fixtures
@@ -25,6 +26,7 @@ namespace Pizzeria.Tests.Fixtures
             _options = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(_connection.ConnectionString).Options;
             DbContext = new AppDbContext(_options);
             DbContext.Database.Migrate();
+            MappingConfig.Configure();
         }
 
         public void Dispose()

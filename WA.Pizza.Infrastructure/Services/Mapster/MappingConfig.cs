@@ -29,18 +29,19 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 
 			TypeAdapterConfig<CatalogItem, ListCatalogItemsDTO>
 				.NewConfig()
+				.Map(dest => dest.Id, src => src.Id)
 				.Map(dest => dest.Name, src => src.Name)
 				.Map(dest => dest.Price, src => src.Price.ToString("0.00"))
 				.Map(dest => dest.PictureBytes, src => src.PictureBytes)
 				.Map(dest => dest.StorageQuantity, src => src.StorageQuantity);
 
-			TypeAdapterConfig<CatalogItem, CatalogItemDTO>
-				.NewConfig()
-				.Ignore(dest => dest.StorageQuantity)
-				.Map(dest => dest.Id, src => src.Id)
-				.Map(dest => dest.Name, src => src.Name)
-				.Map(dest => dest.Price, src => src.Price.ToString("0.00"))
-				.Map(dest => dest.PictureBytes, src => src.PictureBytes);
+			//TypeAdapterConfig<CatalogItem, CatalogItemDTO>
+			//	.NewConfig()
+			//	.Ignore(dest => dest.StorageQuantity)
+			//	.Map(dest => dest.Id, src => src.Id)
+			//	.Map(dest => dest.Name, src => src.Name)
+			//	.Map(dest => dest.Price, src => src.Price.ToString("0.00"))
+			//	.Map(dest => dest.PictureBytes, src => src.PictureBytes);
 
 
 			// Basket
@@ -60,16 +61,25 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 
 			TypeAdapterConfig<CatalogItemToBasketItemRequest, BasketItem>
 				.NewConfig()
+				// error wanted theses properties mapped or ignored
+				.Ignore(dest => dest.Id)
+				.Ignore(dest => dest.CatalogItem)
+				.Ignore(dest => dest.Basket)
 				.Map(dest => dest.BasketId, src => src.BasketId)
 				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
 				.Map(dest => dest.Quantity, src => src.Quantity);
 
 			TypeAdapterConfig<BasketItemDTO, BasketItem>
 				.NewConfig()
-				.Ignore(dest => dest.Id)
-				.Ignore(dest => dest.CatalogItem.Name)
-				.Ignore(dest => dest.CatalogItem.Price)
-				.Ignore(dest => dest.CatalogItem.PictureBytes)
+				.Ignore(dest => dest.CatalogItem.Id)
+				.Ignore(dest => dest.CatalogItem.StorageQuantity)
+				.Ignore(dest => dest.Basket)
+				.Ignore(dest => dest.CatalogItem.BasketItems)
+				.Ignore(dest => dest.CatalogItem.OrderItems)
+				.Map(dest => dest.Id, src => src.Id)
+				.Map(dest => dest.CatalogItem.Name, src => src.Name)
+				.Map(dest => dest.CatalogItem.Price, src => src.Price)
+				.Map(dest => dest.CatalogItem.PictureBytes, src => src.PictureBytes)
 				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
 				.Map(dest => dest.BasketId, src => src.BasketId)
 				.Map(dest => dest.Quantity, src => src.Quantity);
