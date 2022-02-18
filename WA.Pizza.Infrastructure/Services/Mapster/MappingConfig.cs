@@ -35,15 +35,6 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Map(dest => dest.PictureBytes, src => src.PictureBytes)
 				.Map(dest => dest.StorageQuantity, src => src.StorageQuantity);
 
-			//TypeAdapterConfig<CatalogItem, CatalogItemDTO>
-			//	.NewConfig()
-			//	.Ignore(dest => dest.StorageQuantity)
-			//	.Map(dest => dest.Id, src => src.Id)
-			//	.Map(dest => dest.Name, src => src.Name)
-			//	.Map(dest => dest.Price, src => src.Price.ToString("0.00"))
-			//	.Map(dest => dest.PictureBytes, src => src.PictureBytes);
-
-
 			// Basket
 			TypeAdapterConfig<Basket, BasketDTO>
 				.NewConfig()
@@ -65,34 +56,31 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Ignore(dest => dest.Id)
 				.Ignore(dest => dest.CatalogItem)
 				.Ignore(dest => dest.Basket)
+				.Map(dest => dest.Name, src => src.Name)
+				.Map(dest => dest.Price, src => src.Price)
 				.Map(dest => dest.BasketId, src => src.BasketId)
 				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
 				.Map(dest => dest.Quantity, src => src.Quantity);
 
 			TypeAdapterConfig<BasketItemDTO, BasketItem>
 				.NewConfig()
-				.Ignore(dest => dest.CatalogItem.Id)
-				.Ignore(dest => dest.CatalogItem.StorageQuantity)
+				.Ignore(dest => dest.CatalogItem)
 				.Ignore(dest => dest.Basket)
-				.Ignore(dest => dest.CatalogItem.BasketItems)
-				.Ignore(dest => dest.CatalogItem.OrderItems)
 				.Map(dest => dest.Id, src => src.Id)
-				.Map(dest => dest.CatalogItem.Name, src => src.Name)
-				.Map(dest => dest.CatalogItem.Price, src => src.Price)
-				.Map(dest => dest.CatalogItem.PictureBytes, src => src.PictureBytes)
 				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
 				.Map(dest => dest.BasketId, src => src.BasketId)
-				.Map(dest => dest.Quantity, src => src.Quantity);
+				.Map(dest => dest.Quantity, src => src.Quantity)
+				.Map(dest => dest.Name, src => src.Name)
+				.Map(dest => dest.Price, src => src.Price);
+			
 
 
 			// Orders
 			TypeAdapterConfig<Order, ListOrdersDTO>
 				.NewConfig()
+				.Map(dest => dest.OrderItems, src => src.OrderItems)
 				.Map(dest => dest.Total, src => src.Total.ToString("0.00"))
-				.Map(dest => dest.Status, src => src.OrderStatus.ToString())
-				.Map(dest => dest.OrderItems.Name, src => src.OrderItems.Select(oi => oi.Name))
-				.Map(dest => dest.OrderItems.Price, src => src.OrderItems.Select(oi => oi.Price.ToString("0.00")))
-				.Map(dest => dest.OrderItems.Quantity, src => src.OrderItems.Select(oi => oi.Quantity));
+				.Map(dest => dest.Status, src => src.OrderStatus.ToString());
 
 			TypeAdapterConfig<Order, OrderDTO>
 				.NewConfig()
@@ -100,14 +88,6 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Map(dest => dest.Total, src => src.Total.ToString("0.00"))
 				.Map(dest => dest.Status, src => src.OrderStatus.ToString())
 				.Map(dest => dest.OrderItems, src => src.OrderItems);
-
-			TypeAdapterConfig<OrderItem, OrderItemsDTO>
-				.NewConfig()
-				.Map(dest => dest.OrderId, src => src.OrderId)
-				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
-				.Map(dest => dest.Name, src => src.Name)
-				.Map(dest => dest.Price, src => src.Price.ToString("0.00"))
-				.Map(dest => dest.Quantity, src => src.Quantity);
 		}
 	}
 }

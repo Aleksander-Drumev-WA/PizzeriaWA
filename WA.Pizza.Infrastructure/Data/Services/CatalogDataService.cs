@@ -37,28 +37,13 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return catalogItem.Id;
         }
 
-        //public async Task<int> UpdateAsync(CatalogItemDTO updatedCatalogItem)
-        //{
-        //    var catalogItem = updatedCatalogItem.Adapt<CatalogItem>();
-
-        //    if (catalogItem == null)
-        //    {
-        //        throw new ArgumentNullException("Catalog item cannot be found or it is deleted.");
-        //    }
-
-        //    _dbContext.CatalogItems.Update(catalogItem);
-        //    await _dbContext.SaveChangesAsync();
-
-        //    return catalogItem.Id;
-        //}
-
         // functionality for pagination?
-        public async Task<List<ListCatalogItemsDTO>> GetAllAsync()
+        public Task<List<ListCatalogItemsDTO>> GetAllAsync()
         {
             var catalogItems = _dbContext
                 .CatalogItems;
 
-            return await catalogItems.ProjectToType<ListCatalogItemsDTO>().ToListAsync();
+            return catalogItems.ProjectToType<ListCatalogItemsDTO>().ToListAsync();
         }
 
         public async Task<CatalogItemDTO> GetOneCatalogItemAsync(int catalogItemId)

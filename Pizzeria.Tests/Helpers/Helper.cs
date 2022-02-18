@@ -4,13 +4,13 @@ using WA.Pizza.Core.Models;
 
 namespace Pizzeria.Tests.Helpers
 {
-    public static class DataGenerator
+    public static class Helper
     {
-        public static List<CatalogItem> GenerateCatalogItems(int itemsAmount, int storageQuantity)
+        public static List<CatalogItem> GenerateCatalogItems(int itemsCount, int storageQuantity)
         {
             var resultList = new List<CatalogItem>();
 
-            for (int i = 0; i < itemsAmount; i++)
+            for (int i = 0; i < itemsCount; i++)
             {
                 resultList.Add(new CatalogItem
                 {

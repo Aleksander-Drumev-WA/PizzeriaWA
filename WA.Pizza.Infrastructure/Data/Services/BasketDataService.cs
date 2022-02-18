@@ -18,17 +18,17 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
 
 
-        public async Task<ICollection<BasketDTO>> GetBasketWithBasketItemsAsync(int basketId)
+        public Task<List<BasketDTO>> GetBasketWithBasketItemsAsync(int basketId)
         {
             IQueryable<Basket>? basket = _dbContext
                 .Baskets
                 .Where(b => b.Id == basketId)
                 .Include(b => b.BasketItems);
 
-            return await basket.ProjectToType<BasketDTO>().ToListAsync();
+            return basket.ProjectToType<BasketDTO>().ToListAsync();
         }
 
-        public async Task<int> AddItemToBasketAsync(int? userId, CatalogItemToBasketItemRequest request)
+        public async Task<int> AddItemToBasketAsync(CatalogItemToBasketItemRequest request, int? userId = null)
         {
             Basket? basket = await _dbContext
                 .Baskets

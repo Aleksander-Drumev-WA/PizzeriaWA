@@ -17,38 +17,34 @@ namespace Pizzeria.Tests
     [Collection("Database collection")]
     public class CatalogDataServiceTests
     {
-        private readonly DatabaseFixture _fixture;
+        private readonly AppDbContext _dbContext;
 
         public CatalogDataServiceTests(DatabaseFixture fixture)
         {
-            _fixture = fixture;
+            _dbContext = fixture.DbContext;
         }
 
         [Fact]
         public async Task Show_catalog_items_successfully()
         {
             // Arrange
-            var catalogItemsToPass = DataGenerator.GenerateCatalogItems(4, 25);
-            await _fixture.DbContext.CatalogItems.AddRangeAsync(catalogItemsToPass);
-            await _fixture.DbContext.SaveChangesAsync();
-            var sut = new CatalogDataService(_fixture.DbContext);
+            var catalogItemsToPass = Helper.GenerateCatalogItems(4, 25);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItemsToPass);
+            await _dbContext.SaveChangesAsync();
+            var sut = new CatalogDataService(_dbContext);
 
             // Act
             var catalogItems = await sut.GetAllAsync();
 
-            // Assert
-            var catalogItemToAssert = await _fixture.DbContext.CatalogItems.FindAsync(catalogItems[1].Id);
+            // Assert graph comparison
+            var catalogItemToAssert = await _dbContext.CatalogItems.FindAsync(catalogItems[1].Id);
             var comparisonItem = catalogItemsToPass[1];
             catalogItems
                 .Should()
                 .NotBeEmpty()
                 .And
                 .HaveCount(4);
-            catalogItemToAssert.Should().NotBeNull();
-            catalogItemToAssert.Name.Should().Be(comparisonItem.Name);
-            catalogItemToAssert.Price.Should().Be(comparisonItem.Price);
-            catalogItemToAssert.PictureBytes.Should().Be(comparisonItem.PictureBytes);
-            catalogItemToAssert.StorageQuantity.Should().Be(comparisonItem.StorageQuantity);
+            catalogItemToAssert.Should().BeEquivalentTo(comparisonItem);
         }
     }
 }

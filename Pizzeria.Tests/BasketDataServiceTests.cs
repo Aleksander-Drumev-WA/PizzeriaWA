@@ -19,39 +19,42 @@ namespace Pizzeria.Tests
     [Collection("Database collection")]
     public class BasketDataServiceTests
     {
-        private readonly DatabaseFixture _fixture;
+        private readonly AppDbContext _dbContext;
 
         public BasketDataServiceTests(DatabaseFixture fixture)
         {
-            _fixture = fixture;
+            _dbContext = fixture.DbContext;
         }
 
         [Fact]
         public async Task Anonymous_user_adds_catalog_item_to_basket()
         {
             // Arrange
-            var catalogItems = DataGenerator.GenerateCatalogItems(1, 110);
-            await _fixture.DbContext.CatalogItems.AddRangeAsync(catalogItems);
-            await _fixture.DbContext.SaveChangesAsync();
+            var catalogItems = Helper.GenerateCatalogItems(1, 110);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.SaveChangesAsync();
+            var catalogItem = catalogItems.First();
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
-                CatalogItemId = catalogItems[0].Id,
-                Quantity = 60
+                CatalogItemId = catalogItem.Id,
+                Quantity = 60,
+                Name = catalogItem.Name,
+                Price = catalogItem.Price,
             };
-            var sut = new BasketDataService(_fixture.DbContext);
+            var sut = new BasketDataService(_dbContext);
 
             // Act
-            var basketId = await sut.AddItemToBasketAsync(null, request);
+            var basketId = await sut.AddItemToBasketAsync(request);
 
             // Assert
-            var basketToAssert = await _fixture.DbContext.Baskets.FindAsync(basketId);
+            var basketToAssert = await _dbContext.Baskets.FindAsync(basketId);
+            basketToAssert.Should().NotBeNull();
             basketToAssert.BasketItems
                 .Should()
                 .HaveCount(1)
                 .And
                 .Contain(x => x.Quantity == request.Quantity);
-
         }
 
         [Fact]
@@ -64,23 +67,27 @@ namespace Pizzeria.Tests
                 Email = Internet.Email(),
                 PasswordHash = Lorem.Sentence(8),
             };
-            var catalogItems = DataGenerator.GenerateCatalogItems(1, 110);
-            await _fixture.DbContext.CatalogItems.AddRangeAsync(catalogItems);
-            await _fixture.DbContext.Users.AddAsync(user);
-            await _fixture.DbContext.SaveChangesAsync();
+            var catalogItems = Helper.GenerateCatalogItems(1, 110);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+            var catalogItem = catalogItems.First();
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
-                CatalogItemId = catalogItems[0].Id,
-                Quantity = 60
+                CatalogItemId = catalogItem.Id,
+                Quantity = 60,
+                Name = catalogItem.Name,
+                Price = catalogItem.Price,
             };
-            var sut = new BasketDataService(_fixture.DbContext);
+            var sut = new BasketDataService(_dbContext);
 
             // Act
-            var basketId = await sut.AddItemToBasketAsync(user.Id, request);
+            var basketId = await sut.AddItemToBasketAsync(request, user.Id);
 
             // Assert
-            var basketToAssert = await _fixture.DbContext.Baskets.FindAsync(basketId);
+            var basketToAssert = await _dbContext.Baskets.FindAsync(basketId);
+            basketToAssert.Should().NotBeNull();
             basketToAssert.BasketItems
                 .Should()
                 .HaveCount(1)
@@ -92,10 +99,10 @@ namespace Pizzeria.Tests
         public async Task User_puts_more_quantity_than_storage_quantity()
         {
             // Arrange
-            var sut = new BasketDataService(_fixture.DbContext);
-            var catalogItems = DataGenerator.GenerateCatalogItems(1, 110);
-            await _fixture.DbContext.CatalogItems.AddRangeAsync(catalogItems);
-            await _fixture.DbContext.SaveChangesAsync();
+            var sut = new BasketDataService(_dbContext);
+            var catalogItems = Helper.GenerateCatalogItems(1, 110);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.SaveChangesAsync();
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
@@ -104,14 +111,14 @@ namespace Pizzeria.Tests
             };
 
             // Act
-            Func<Task> act = () => sut.AddItemToBasketAsync(null, request);
+            Func<Task> act = () => sut.AddItemToBasketAsync(request);
 
-            // Act, Assert
+            // Assert
             await act.Should().ThrowAsync<ArgumentException>().WithMessage("Not enough stock in storage.");
         }
 
         [Fact]
-        public async Task User_checks_his_basket_with_basket_items()
+        public async Task User_gets_his_basket_with_basket_items()
         {
             // Arrange
             var user = new User
@@ -120,36 +127,38 @@ namespace Pizzeria.Tests
                 Email = Internet.Email(),
                 PasswordHash = Lorem.Sentence(8),
             };
-            await _fixture.DbContext.Users.AddAsync(user);
-            var catalogItems = DataGenerator.GenerateCatalogItems(4, 25);
+            await _dbContext.Users.AddAsync(user);
+            var catalogItems = Helper.GenerateCatalogItems(4, 25);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.SaveChangesAsync();
             var basketItems = new List<BasketItem>();
             for (int i = 0; i < catalogItems.Count; i++)
             {
                 basketItems.Add(new BasketItem
                 {
-                    CatalogItem = catalogItems[i],
-                    Quantity = 5
+                    CatalogItemId = catalogItems[i].Id,
+                    Quantity = 5,
+                    Name = catalogItems[i].Name,
+                    Price = catalogItems[i].Price,
                 });
             }
-            await _fixture.DbContext.CatalogItems.AddRangeAsync(catalogItems);
-            await _fixture.DbContext.SaveChangesAsync();
-
             var basket = new Basket
             {
                 UserId = user.Id,
                 BasketItems = basketItems
             };
-            await _fixture.DbContext.Baskets.AddAsync(basket);
-            await _fixture.DbContext.SaveChangesAsync();
-            var sut = new BasketDataService(_fixture.DbContext);
+            await _dbContext.Baskets.AddAsync(basket);
+            await _dbContext.SaveChangesAsync();
+            var sut = new BasketDataService(_dbContext);
 
             // Act
             var result = await sut.GetBasketWithBasketItemsAsync(basket.Id);
 
             // Assert
-            var basketItemToAssert = await _fixture.DbContext.BasketItems.FindAsync(basketItems[2].Id);
+            result.Should().NotBeNull();
+            result.Should().NotBeEmpty();
             result.Select(b => b.BasketItems.Should().HaveCount(4));
-            basketItemToAssert.Quantity.Should().Be(5);
+            result.Select(b => b.BasketItems.All(bi => bi.Quantity == 5).Should().BeTrue());
         }
 
         [Fact]
@@ -162,42 +171,44 @@ namespace Pizzeria.Tests
                 Email = Internet.Email(),
                 PasswordHash = Lorem.Sentence(8),
             };
-            await _fixture.DbContext.Users.AddAsync(user);
-            var catalogItems = DataGenerator.GenerateCatalogItems(4, 25);
+            await _dbContext.Users.AddAsync(user);
+            var catalogItems = Helper.GenerateCatalogItems(4, 25);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.SaveChangesAsync();
             var basketItems = new List<BasketItem>();
-            for (int i = 0; i < 4; i++)
+
+            for (int i = 0; i < catalogItems.Count; i++)
             {
                 basketItems.Add(new BasketItem
                 {
-                    CatalogItem = catalogItems[i],
+                    CatalogItemId = catalogItems[i].Id,
                     Quantity = i + 1,
+                    Name = catalogItems[i].Name,
+                    Price = catalogItems[i].Price,
                 });
             }
-            await _fixture.DbContext.CatalogItems.AddRangeAsync(catalogItems);
-            await _fixture.DbContext.SaveChangesAsync();
             var basket = new Basket
             {
                 UserId = user.Id,
                 BasketItems = basketItems
             };
-            await _fixture.DbContext.Baskets.AddAsync(basket);
-            await _fixture.DbContext.SaveChangesAsync();
+            await _dbContext.Baskets.AddAsync(basket);
+            await _dbContext.SaveChangesAsync();
             var dto = new BasketItemDTO
             {
                 BasketId = basket.Id,
-                CatalogItemId = catalogItems[2].Id,
+                CatalogItemId = catalogItems[0].Id,
                 Quantity = 22,
-                Name = catalogItems[2].Name,
-                PictureBytes = catalogItems[2].PictureBytes,
-                Price = catalogItems[2].Price,
+                Name = catalogItems[0].Name,
+                Price = catalogItems[0].Price,
             };
-            var sut = new BasketDataService(_fixture.DbContext);
+            var sut = new BasketDataService(_dbContext);
 
             // Act
             var updatedItemId = await sut.UpdateItemAsync(dto);
 
             // Assert
-            var updatedCatalogItem = await _fixture.DbContext.BasketItems.FindAsync(updatedItemId);
+            var updatedCatalogItem = await _dbContext.BasketItems.FindAsync(updatedItemId);
             updatedCatalogItem.Quantity.Should().Be(22);
         }
 
@@ -211,34 +222,38 @@ namespace Pizzeria.Tests
                 Email = Internet.Email(),
                 PasswordHash = Lorem.Sentence(8),
             };
-            await _fixture.DbContext.Users.AddAsync(user);
-            var catalogItems = DataGenerator.GenerateCatalogItems(4, 25);
+            await _dbContext.Users.AddAsync(user);
+            var catalogItems = Helper.GenerateCatalogItems(4, 25);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.SaveChangesAsync();
             var basketItems = new List<BasketItem>();
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < catalogItems.Count; i++)
             {
                 basketItems.Add(new BasketItem
                 {
-                    CatalogItem = catalogItems[i],
+                    CatalogItemId = catalogItems[i].Id,
                     Quantity = i + 1,
+                    Name = catalogItems[i].Name,
+                    Price = catalogItems[i].Price,
                 });
             }
-            await _fixture.DbContext.CatalogItems.AddRangeAsync(catalogItems);
-            await _fixture.DbContext.SaveChangesAsync();
-
             var basket = new Basket
             {
                 UserId = user.Id,
                 BasketItems = basketItems,
             };
-            await _fixture.DbContext.Baskets.AddAsync(basket);
-            await _fixture.DbContext.SaveChangesAsync();
-            var sut = new BasketDataService(_fixture.DbContext);
+            var basketItemToTest = basketItems.First();
+            await _dbContext.Baskets.AddAsync(basket);
+            await _dbContext.SaveChangesAsync();
+            var sut = new BasketDataService(_dbContext);
 
             // Act
-            await sut.RemoveBasketItemAsync(basketItems[3].Id);
+            await sut.RemoveBasketItemAsync(basketItemToTest.Id);
 
             // Assert
-            basket.BasketItems.Should().HaveCount(3).And.NotContain(x => x.Id == 4);
+            var ensureDeletedBasketItem = await _dbContext.BasketItems.FindAsync(basketItemToTest.Id);
+            ensureDeletedBasketItem.Should().BeNull();
+            basket.BasketItems.Should().HaveCount(3).And.NotContain(x => x.Id == basketItemToTest.Id);
         }
     }
 }

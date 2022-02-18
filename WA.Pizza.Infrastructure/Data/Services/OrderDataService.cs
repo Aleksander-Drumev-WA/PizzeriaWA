@@ -53,9 +53,8 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 UserId = basket.UserId.Value,
                 OrderStatus = OrderStatus.New
             };
-
-
             await _dbContext.Orders.AddAsync(order);
+            await _dbContext.SaveChangesAsync();
 
             foreach (var currentCatalogItem in catalogItems)
             {
@@ -72,20 +71,21 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
                 await _dbContext.OrderItems.AddAsync(orderItem);
             }
+            await _dbContext.SaveChangesAsync();
 
             return order.Id;
         }
 
 
 
-        public ICollection<ListOrdersDTO> GetMyOrdersAsync(int userId)
+        public Task<List<ListOrdersDTO>> GetMyOrdersAsync(int userId)
         {
             var orders = _dbContext
             .Orders
             .Where(o => o.UserId == userId)
             .Include(o => o.OrderItems);
 
-            return orders.ProjectToType<ListOrdersDTO>().ToList();
+            return orders.ProjectToType<ListOrdersDTO>().ToListAsync();
         }
 
         public async Task<int> UpdateOrderStatusAsync(int orderId, OrderStatus orderStatus)
