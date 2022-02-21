@@ -48,6 +48,8 @@ namespace Pizzeria.Tests
                     Price = catalogItem.Price,
                 });
             }
+            var basketItemsBeforeCleaning = new List<BasketItem>();
+            basketItemsBeforeCleaning.AddRange(basketItems);
             var basket = new Basket
             {
                 UserId = user.Id,
@@ -55,6 +57,7 @@ namespace Pizzeria.Tests
             };
             await _dbContext.Baskets.AddAsync(basket);
             await _dbContext.SaveChangesAsync();
+            var resultQuantity = catalogItems.First().StorageQuantity - basketItems.First().Quantity;
             var sut = new OrderDataService(_dbContext);
 
             // Act
@@ -62,11 +65,13 @@ namespace Pizzeria.Tests
 
             // Assert
             var orderToAssert = await _dbContext.Orders.FindAsync(orderId);
+            var basketToAssert = await _dbContext.Baskets.FindAsync(basket.Id);
             orderToAssert.Should().NotBeNull();
-            orderToAssert.OrderItems.Should().NotBeNull();
-            orderToAssert.OrderItems.Should().HaveCount(catalogItems.Count);
-            orderToAssert.OrderItems.Should().BeEquivalentTo(basketItems, options => options.ExcludingMissingMembers());
-            orderToAssert.OrderItems.All(oi => oi.CatalogItem.StorageQuantity == 30).Should().BeTrue();
+            orderToAssert!.OrderItems.Should().HaveCount(basketItemsBeforeCleaning.Count);
+            orderToAssert.OrderItems.Should().BeEquivalentTo(basketItemsBeforeCleaning, options => options.ExcludingMissingMembers());
+            orderToAssert.OrderItems.All(oi => oi.CatalogItem.StorageQuantity == resultQuantity).Should().BeTrue();
+            basketToAssert!.BasketItems.Should().NotBeNull();
+            basketToAssert.BasketItems.Should().BeEmpty();
         }
 
         [Fact]
@@ -155,7 +160,7 @@ namespace Pizzeria.Tests
             // Assert
             var updatedOrder = await _dbContext.Orders.FindAsync(orderId);
             updatedOrder.Should().NotBeNull();
-            updatedOrder.OrderStatus.Should().Be(OrderStatus.Completed);
+            updatedOrder!.OrderStatus.Should().Be(OrderStatus.Completed);
         }
 
         [Fact]
@@ -201,6 +206,40 @@ namespace Pizzeria.Tests
             order.OrderItems.All(oi => oi != null).Should().BeTrue();
             order.OrderItems.Should().HaveCount(basketItems.Count);
             order.OrderItems.Should().BeEquivalentTo(basketItems, options => options.ExcludingMissingMembers());
+        }
+
+        [Fact]
+        public async Task Anonymous_user_tries_to_create_order()
+        {
+            // Arrange
+            var catalogItems = Helper.GenerateCatalogItems(4, 40);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.SaveChangesAsync();
+            var basketItems = new List<BasketItem>();
+            foreach (var catalogItem in catalogItems)
+            {
+                basketItems.Add(new BasketItem
+                {
+                    CatalogItemId = catalogItem.Id,
+                    Quantity = 10,
+                    Name = catalogItem.Name,
+                    Price = catalogItem.Price,
+                });
+            }
+            var basket = new Basket
+            {
+                UserId = null,
+                BasketItems = basketItems
+            };
+            await _dbContext.Baskets.AddAsync(basket);
+            await _dbContext.SaveChangesAsync();
+            var sut = new OrderDataService(_dbContext);
+
+            // Act
+            Func<Task> act = () => sut.CreateOrderAsync(basket.Id);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentNullException>().WithMessage("Anonymous user cannot order.");
         }
     }
 }

@@ -30,6 +30,11 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 .ThenInclude(bi => bi.CatalogItem)
                 .FirstAsync(b => b.Id == basketId);
 
+            if (basket.UserId == null)
+            {
+                throw new ArgumentNullException(message: "Anonymous user cannot order.", null);
+            }
+
             var catalogItems = basket.BasketItems.Select(bi => bi.CatalogItem).ToList();
             foreach (var currentCatalogItem in catalogItems)
             {
@@ -44,35 +49,34 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 }
 
                 currentCatalogItem.StorageQuantity -= currentBasketItem.Quantity;
-                _dbContext.CatalogItems.Update(currentCatalogItem);
                 total += currentBasketItem.Quantity * currentCatalogItem.Price;
             }
+
+            var orderItems = new List<OrderItem>();
+            foreach (var currentBasketItem in basket.BasketItems)
+            {
+                var orderItem = new OrderItem
+                {
+                    CatalogItemId = currentBasketItem.Id,
+                    Name = currentBasketItem.Name,
+                    Price = currentBasketItem.Price,
+                    Quantity = currentBasketItem.Quantity
+                };
+                orderItems.Add(orderItem);
+            }
+            _dbContext.BasketItems.RemoveRange(basket.BasketItems);
+            _dbContext.OrderItems.AddRange(orderItems);
+
 
             var order = new Order
             {
                 CreatedOn = DateTime.UtcNow,
                 Total = total,
                 UserId = basket.UserId.Value,
-                OrderStatus = OrderStatus.New
+                OrderStatus = OrderStatus.New,
+                OrderItems = orderItems
             };
-            await _dbContext.Orders.AddAsync(order);
-            await _dbContext.SaveChangesAsync();
-
-            foreach (var currentCatalogItem in catalogItems)
-            {
-                var quantity = currentCatalogItem.BasketItems.First(bi => bi.CatalogItemId == currentCatalogItem.Id).Quantity;
-
-                var orderItem = new OrderItem
-                {
-                    OrderId = order.Id,
-                    CatalogItemId = currentCatalogItem.Id,
-                    Name = currentCatalogItem.Name,
-                    Price = currentCatalogItem.Price,
-                    Quantity = quantity
-                };
-
-                await _dbContext.OrderItems.AddAsync(orderItem);
-            }
+            _dbContext.Orders.Add(order);
             await _dbContext.SaveChangesAsync();
 
             return order.Id;
