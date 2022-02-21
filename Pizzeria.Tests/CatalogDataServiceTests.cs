@@ -11,6 +11,7 @@ using System;
 using Pizzeria.Tests.Fixtures;
 using System.Collections.Generic;
 using Pizzeria.Tests.Helpers;
+using System.Linq;
 
 namespace Pizzeria.Tests
 {
@@ -36,9 +37,9 @@ namespace Pizzeria.Tests
             // Act
             var catalogItems = await sut.GetAllAsync();
 
-            // Assert graph comparison
-            var catalogItemToAssert = await _dbContext.CatalogItems.FindAsync(catalogItems[1].Id);
-            var comparisonItem = catalogItemsToPass[1];
+            // Assert
+            var catalogItemToAssert = await _dbContext.CatalogItems.FindAsync(catalogItems.First().Id);
+            var comparisonItem = catalogItemsToPass.First();
             catalogItems
                 .Should()
                 .NotBeEmpty()

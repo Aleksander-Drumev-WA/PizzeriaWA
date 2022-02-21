@@ -54,7 +54,12 @@ namespace Pizzeria.Tests
                 .Should()
                 .HaveCount(1)
                 .And
-                .Contain(x => x.Quantity == request.Quantity);
+                .Contain(
+                bi => bi.Quantity == request.Quantity &&
+                bi.Name == request.Name && 
+                bi.Price == request.Price && 
+                bi.CatalogItemId == request.CatalogItemId &&
+                bi.BasketId != null);
         }
 
         [Fact]
@@ -88,11 +93,18 @@ namespace Pizzeria.Tests
             // Assert
             var basketToAssert = await _dbContext.Baskets.FindAsync(basketId);
             basketToAssert.Should().NotBeNull();
+            basketToAssert.UserId.Should().NotBeNull();
+            basketToAssert.UserId.Should().Be(user.Id);
             basketToAssert.BasketItems
                 .Should()
                 .HaveCount(1)
                 .And
-                .Contain(x => x.Quantity == request.Quantity);
+                .Contain(
+                bi => bi.Quantity == request.Quantity &&
+                bi.Name == request.Name &&
+                bi.Price == request.Price &&
+                bi.CatalogItemId == request.CatalogItemId &&
+                bi.BasketId != null);
         }
 
         [Fact]
@@ -132,14 +144,14 @@ namespace Pizzeria.Tests
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
             await _dbContext.SaveChangesAsync();
             var basketItems = new List<BasketItem>();
-            for (int i = 0; i < catalogItems.Count; i++)
+            foreach (var catalogItem in catalogItems)
             {
                 basketItems.Add(new BasketItem
                 {
-                    CatalogItemId = catalogItems[i].Id,
+                    CatalogItemId = catalogItem.Id,
                     Quantity = 5,
-                    Name = catalogItems[i].Name,
-                    Price = catalogItems[i].Price,
+                    Name = catalogItem.Name,
+                    Price = catalogItem.Price,
                 });
             }
             var basket = new Basket
@@ -147,6 +159,7 @@ namespace Pizzeria.Tests
                 UserId = user.Id,
                 BasketItems = basketItems
             };
+            var basketItem = basketItems.First();
             await _dbContext.Baskets.AddAsync(basket);
             await _dbContext.SaveChangesAsync();
             var sut = new BasketDataService(_dbContext);
@@ -158,7 +171,7 @@ namespace Pizzeria.Tests
             result.Should().NotBeNull();
             result.Should().NotBeEmpty();
             result.Select(b => b.BasketItems.Should().HaveCount(4));
-            result.Select(b => b.BasketItems.All(bi => bi.Quantity == 5).Should().BeTrue());
+            result.Select(b => b.BasketItems.All(bi => bi.Quantity == basketItem.Quantity).Should().BeTrue());
         }
 
         [Fact]
@@ -176,15 +189,14 @@ namespace Pizzeria.Tests
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
             await _dbContext.SaveChangesAsync();
             var basketItems = new List<BasketItem>();
-
-            for (int i = 0; i < catalogItems.Count; i++)
+            foreach (var currentCatalogItem in catalogItems)
             {
                 basketItems.Add(new BasketItem
                 {
-                    CatalogItemId = catalogItems[i].Id,
-                    Quantity = i + 1,
-                    Name = catalogItems[i].Name,
-                    Price = catalogItems[i].Price,
+                    CatalogItemId = currentCatalogItem.Id,
+                    Quantity = 5,
+                    Name = currentCatalogItem.Name,
+                    Price = currentCatalogItem.Price,
                 });
             }
             var basket = new Basket
@@ -194,13 +206,14 @@ namespace Pizzeria.Tests
             };
             await _dbContext.Baskets.AddAsync(basket);
             await _dbContext.SaveChangesAsync();
+            var firstCatalogItem = catalogItems.First();
             var dto = new BasketItemDTO
             {
                 BasketId = basket.Id,
-                CatalogItemId = catalogItems[0].Id,
+                CatalogItemId = firstCatalogItem.Id,
                 Quantity = 22,
-                Name = catalogItems[0].Name,
-                Price = catalogItems[0].Price,
+                Name = firstCatalogItem.Name,
+                Price = firstCatalogItem.Price,
             };
             var sut = new BasketDataService(_dbContext);
 
@@ -227,14 +240,14 @@ namespace Pizzeria.Tests
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
             await _dbContext.SaveChangesAsync();
             var basketItems = new List<BasketItem>();
-            for (int i = 0; i < catalogItems.Count; i++)
+            foreach (var catalogItem in catalogItems)
             {
                 basketItems.Add(new BasketItem
                 {
-                    CatalogItemId = catalogItems[i].Id,
-                    Quantity = i + 1,
-                    Name = catalogItems[i].Name,
-                    Price = catalogItems[i].Price,
+                    CatalogItemId = catalogItem.Id,
+                    Quantity = 5,
+                    Name = catalogItem.Name,
+                    Price = catalogItem.Price,
                 });
             }
             var basket = new Basket

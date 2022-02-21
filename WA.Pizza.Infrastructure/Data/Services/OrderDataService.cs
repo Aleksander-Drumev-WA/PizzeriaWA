@@ -43,6 +43,8 @@ namespace WA.Pizza.Infrastructure.Data.Services
                     throw new ArgumentException("Not enough catalog items in storage.");
                 }
 
+                currentCatalogItem.StorageQuantity -= currentBasketItem.Quantity;
+                _dbContext.CatalogItems.Update(currentCatalogItem);
                 total += currentBasketItem.Quantity * currentCatalogItem.Price;
             }
 
@@ -88,13 +90,13 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return orders.ProjectToType<ListOrdersDTO>().ToListAsync();
         }
 
-        public async Task<int> UpdateOrderStatusAsync(int orderId, OrderStatus orderStatus)
+        public async Task<int> UpdateOrderStatusAsync(int orderId, string orderStatus)
         {
             var order = await _dbContext
                 .Orders
                 .FirstAsync(o => o.Id == orderId);
 
-            order.OrderStatus = orderStatus;
+            order.OrderStatus = (OrderStatus)Enum.Parse(typeof(OrderStatus), orderStatus);
 
             _dbContext.Orders.Update(order);
             await _dbContext.SaveChangesAsync();
