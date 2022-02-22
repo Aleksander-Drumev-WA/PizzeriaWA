@@ -7,6 +7,7 @@ using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Services;
 using WA.Pizza.Infrastructure.DTO.Catalog;
 using WA.Pizza.Infrastructure.Services.Mapster;
+using WA.Pizza.Web.Extensions;
 using WA.Pizza.Web.Services.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,4 +48,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.SeedDatabase();
 app.Run();

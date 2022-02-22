@@ -4,7 +4,6 @@ using WA.Pizza.Infrastructure.Data.Services;
 
 namespace WA.Pizza.Web.Controllers
 {
-    [Authorize]
     public class OrdersController : BaseController
     {
         private readonly OrderDataService _orderDataService;
@@ -15,27 +14,27 @@ namespace WA.Pizza.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(int basketId)
+        public Task CreateOrder(int basketId)
         {
-            return Ok(await _orderDataService.CreateOrderAsync(basketId));
+            return _orderDataService.CreateOrderAsync(basketId);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetOrders(int userId)
+        public Task GetOrders(int userId)
         {
-            return Ok(await _orderDataService.GetMyOrdersAsync(userId));
+            return _orderDataService.GetMyOrdersAsync(userId);
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateOrder(int userId, string orderStatus)
+        public Task UpdateOrder(int userId, string orderStatus)
         {
-            return Ok(await _orderDataService.UpdateOrderStatusAsync(userId, orderStatus));
+            return _orderDataService.UpdateOrderStatusAsync(userId, orderStatus);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetOrder(int orderId)
+        public Task GetOrder(int orderId)
         {
-            return Ok(await _orderDataService.GetOrderAsync(orderId));
+            return _orderDataService.GetOrderAsync(orderId);
         }
     }
 }

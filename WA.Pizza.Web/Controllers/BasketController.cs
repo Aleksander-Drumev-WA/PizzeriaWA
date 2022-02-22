@@ -18,37 +18,27 @@ namespace WA.Pizza.Web.Controllers
 
         [HttpGet]
         [Route("{basketId}")]
-        public async Task<IActionResult> GetBasket(int basketId)
+        public Task GetBasket(int basketId)
         {
-            return Ok(await _basketDataService.GetBasketWithBasketItemsAsync(basketId));
+            return _basketDataService.GetBasketWithBasketItemsAsync(basketId);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddItem(CatalogItemToBasketItemRequest request)
+        public Task AddItem(CatalogItemToBasketItemRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(request);
-            }
-
-            return Ok(await _basketDataService.AddItemToBasketAsync(request));
+            return _basketDataService.AddItemToBasketAsync(request);
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateItem(BasketItemDTO updatedBasketItem)
+        public Task UpdateItem(BasketItemDTO updatedBasketItem)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(updatedBasketItem);
-            }
-
-            return Ok(await _basketDataService.UpdateItemAsync(updatedBasketItem));
+            return _basketDataService.UpdateItemAsync(updatedBasketItem);
         }
 
         [HttpDelete]
-        public IActionResult DeleteItem(int basketItemId)
+        public Task DeleteItem(int basketItemId)
         {
-            return Ok(_basketDataService.RemoveBasketItem(basketItemId));
+            return _basketDataService.RemoveBasketItem(basketItemId);
         }
     }
 }
