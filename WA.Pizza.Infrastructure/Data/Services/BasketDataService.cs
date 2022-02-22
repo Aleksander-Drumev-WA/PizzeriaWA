@@ -28,11 +28,11 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return basket.ProjectToType<BasketDTO>().ToListAsync();
         }
 
-        public async Task<int> AddItemToBasketAsync(CatalogItemToBasketItemRequest request, int? userId = null)
+        public async Task<int> AddItemToBasketAsync(CatalogItemToBasketItemRequest request)
         {
             Basket? basket = await _dbContext
                 .Baskets
-                .FirstOrDefaultAsync(b => b.UserId == userId || b.Id == request.BasketId);
+                .FirstOrDefaultAsync(b => b.UserId == request.UserId || b.Id == request.BasketId);
 
             var catalogItem = await _dbContext
                 .CatalogItems
@@ -40,7 +40,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             if (basket == null)
             {
-                basket = await AssignBasketAsync(userId);
+                basket = await AssignBasketAsync(request.UserId);
             }
             if (catalogItem.StorageQuantity < request.Quantity)
             {
@@ -73,7 +73,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return localBasketItem.Id;
         }
 
-        public async Task RemoveBasketItemAsync(int basketItemId)
+        public async Task RemoveBasketItem(int basketItemId)
         {
             BasketItem? basketItem = await _dbContext
                 .BasketItems

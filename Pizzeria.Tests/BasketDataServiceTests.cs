@@ -37,6 +37,7 @@ namespace Pizzeria.Tests
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
+                UserId = null,
                 CatalogItemId = catalogItem.Id,
                 Quantity = 60,
                 Name = catalogItem.Name,
@@ -59,7 +60,8 @@ namespace Pizzeria.Tests
                 bi.Name == request.Name && 
                 bi.Price == request.Price && 
                 bi.CatalogItemId == request.CatalogItemId &&
-                bi.BasketId != null);
+                bi.BasketId != null && 
+                bi.Basket.UserId == null);
         }
 
         [Fact]
@@ -80,6 +82,7 @@ namespace Pizzeria.Tests
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
+                UserId = user.Id,
                 CatalogItemId = catalogItem.Id,
                 Quantity = 60,
                 Name = catalogItem.Name,
@@ -88,7 +91,7 @@ namespace Pizzeria.Tests
             var sut = new BasketDataService(_dbContext);
 
             // Act
-            var basketId = await sut.AddItemToBasketAsync(request, user.Id);
+            var basketId = await sut.AddItemToBasketAsync(request);
 
             // Assert
             var basketToAssert = await _dbContext.Baskets.FindAsync(basketId);
@@ -115,11 +118,15 @@ namespace Pizzeria.Tests
             var catalogItems = Helper.GenerateCatalogItems(1, 110);
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
             await _dbContext.SaveChangesAsync();
+            var catalogItem = catalogItems.First();
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
-                CatalogItemId = catalogItems[0].Id,
-                Quantity = 120
+                UserId = null,
+                CatalogItemId = catalogItem.Id,
+                Quantity = 120,
+                Name = catalogItem.Name,
+                Price = catalogItem.Price
             };
 
             // Act
@@ -261,7 +268,7 @@ namespace Pizzeria.Tests
             var sut = new BasketDataService(_dbContext);
 
             // Act
-            await sut.RemoveBasketItemAsync(basketItemToTest.Id);
+            await sut.RemoveBasketItem(basketItemToTest.Id);
 
             // Assert
             var ensureDeletedBasketItem = await _dbContext.BasketItems.FindAsync(basketItemToTest.Id);

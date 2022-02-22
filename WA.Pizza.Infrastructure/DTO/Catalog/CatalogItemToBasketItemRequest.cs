@@ -4,6 +4,8 @@
     {
         public int? BasketId { get; init; }
 
+        public int? UserId { get; init; }
+
         public int CatalogItemId { get; init; }
 
         public int Quantity { get; init; }
