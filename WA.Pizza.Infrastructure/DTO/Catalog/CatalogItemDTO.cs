@@ -1,7 +1,7 @@
 ﻿namespace WA.Pizza.Infrastructure.DTO.Catalog
 {
     public record CatalogItemDTO(
-        int Id,
+        int? Id,
         string Name,
         decimal Price,
         string PictureBytes,

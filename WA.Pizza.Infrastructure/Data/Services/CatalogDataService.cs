@@ -19,36 +19,42 @@ namespace WA.Pizza.Infrastructure.Data.Services
             this._dbContext = dbContext;
         }
 
-        public async Task AddAsync(CatalogItemDTO dto)
+        public async Task<int> AddOrUpdateAsync(CatalogItemDTO dto)
         {
-            if (dto != null)
-            {
-                var catalogItem = dto.Adapt<CatalogItem>();
-                // I'm not sure about this row ^
+            var catalogItem = dto.Adapt<CatalogItem>();
 
+            if (dto.Id == null)
+            {
                 await _dbContext.CatalogItems.AddAsync(catalogItem);
-                await _dbContext.SaveChangesAsync();
             }
+            else
+            {
+                _dbContext.CatalogItems.Update(catalogItem);
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return catalogItem.Id;
         }
 
         // functionality for pagination?
-        public ICollection<ListCatalogItemsDTO> GetAllAsync()
+        public Task<List<ListCatalogItemsDTO>> GetAllAsync()
         {
             var catalogItems = _dbContext
                 .CatalogItems;
 
-            return catalogItems.ProjectToType<ListCatalogItemsDTO>().ToList();
+            return catalogItems.ProjectToType<ListCatalogItemsDTO>().ToListAsync();
         }
 
         public async Task<CatalogItemDTO> GetOneCatalogItemAsync(int catalogItemId)
-		{
+        {
             var catalogItem = await _dbContext
                 .CatalogItems
                 .ProjectToType<CatalogItemDTO>()
                 .FirstAsync(ci => ci.Id == catalogItemId);
 
             return catalogItem;
-		}
+        }
 
         public async Task RemoveAsync(int Id)
         {
@@ -65,19 +71,6 @@ namespace WA.Pizza.Infrastructure.Data.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> UpdateAsync(CatalogItemDTO updatedCatalogItem)
-        {
-            var catalogItem = updatedCatalogItem.Adapt<CatalogItem>();
 
-            if (catalogItem == null)
-            {
-                throw new ArgumentNullException("Catalog item cannot be found or it is deleted.");
-            }
-
-            _dbContext.CatalogItems.Update(catalogItem);
-            await _dbContext.SaveChangesAsync();
-
-            return updatedCatalogItem.Id;
-        }
     }
 }

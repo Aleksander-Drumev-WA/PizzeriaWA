@@ -2,9 +2,9 @@
 {
     public record OrderItemsDTO
     {
-        public int OrderId { get; set; }
+        public int OrderId { get; init; }
 
-        public int CatalogItemId { get; set; }
+        public int CatalogItemId { get; init; }
 
         public string Name { get; init; }
 
