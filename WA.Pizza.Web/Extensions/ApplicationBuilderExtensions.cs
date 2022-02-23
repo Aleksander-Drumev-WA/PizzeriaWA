@@ -10,7 +10,7 @@ namespace WA.Pizza.Web.Extensions
             using var services = applicationBuilder.ApplicationServices.CreateScope();
 
             var dbContext = services.ServiceProvider.GetService<AppDbContext>();
-            new DbContextSeeder().SeedAsync(dbContext).GetAwaiter().GetResult();
+            new CatalogItemSeeder().SeedAsync(dbContext).GetAwaiter().GetResult();
         }
     }
 }

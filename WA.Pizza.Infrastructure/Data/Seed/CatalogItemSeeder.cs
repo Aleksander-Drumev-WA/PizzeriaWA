@@ -1,9 +1,8 @@
 ﻿using WA.Pizza.Core.Models;
-using WA.Pizza.Infrastructure.Abstractions;
 
 namespace WA.Pizza.Infrastructure.Data.Seed
 {
-    internal class CatalogItemSeeder : ISeeder
+    public class CatalogItemSeeder
     {
         public async Task SeedAsync(AppDbContext dbContext)
         {
@@ -44,8 +43,8 @@ namespace WA.Pizza.Infrastructure.Data.Seed
                 };
 
                 await dbContext.CatalogItems.AddRangeAsync(catalogItems);
+                await dbContext.SaveChangesAsync();
             }
-
         }
     }
 }
