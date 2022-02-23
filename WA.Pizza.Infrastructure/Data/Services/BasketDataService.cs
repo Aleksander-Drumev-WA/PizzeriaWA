@@ -4,6 +4,7 @@ using WA.Pizza.Core.Models;
 using Mapster;
 using WA.Pizza.Infrastructure.DTO.Basket;
 using WA.Pizza.Infrastructure.DTO.Catalog;
+using WA.Pizza.Core.Exceptions;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
@@ -61,12 +62,23 @@ namespace WA.Pizza.Infrastructure.Data.Services
         {
             var localBasketItem = updatedBasketItem.Adapt<BasketItem>();
 
+            var catalogItem = _dbContext
+                .CatalogItems
+                .First(ci => ci.Id == updatedBasketItem.CatalogItemId);
+
+
             if (localBasketItem == null)
             {
-                throw new ArgumentNullException("Basket item cannot be found or deleted.");
+                throw new ItemNotFoundException("Basket item cannot be found or deleted.");
+            }
+            if (catalogItem.StorageQuantity < updatedBasketItem.Quantity)
+            {
+                throw new ArgumentException("Not enough stock in storage.");
             }
 
+            catalogItem.StorageQuantity -= updatedBasketItem.Quantity;
             _dbContext.BasketItems.Update(localBasketItem);
+            _dbContext.CatalogItems.Update(catalogItem);
             await _dbContext.SaveChangesAsync();
 
 

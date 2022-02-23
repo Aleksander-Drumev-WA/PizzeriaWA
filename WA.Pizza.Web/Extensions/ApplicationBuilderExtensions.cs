@@ -1,5 +1,6 @@
 ﻿using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Seed;
+using WA.Pizza.Web.BackgroundJobs;
 
 namespace WA.Pizza.Web.Extensions
 {
@@ -11,6 +12,11 @@ namespace WA.Pizza.Web.Extensions
 
             var dbContext = services.ServiceProvider.GetService<AppDbContext>();
             new CatalogItemSeeder().SeedAsync(dbContext).GetAwaiter().GetResult();
+        }
+
+        public static void CustomExceptionHandlerMiddleware(this IApplicationBuilder applicationBuilder)
+        {
+            applicationBuilder.UseMiddleware<ErrorHandlerMiddleware>();
         }
     }
 }

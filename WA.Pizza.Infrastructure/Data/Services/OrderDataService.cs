@@ -8,6 +8,7 @@ using WA.Pizza.Core.Models;
 using WA.Pizza.Infrastructure.DTO.Orders;
 
 using Mapster;
+using WA.Pizza.Core.Exceptions;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
@@ -32,7 +33,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             if (basket.UserId == null)
             {
-                throw new ArgumentNullException(message: "Anonymous user cannot order.", null);
+                throw new ItemNotFoundException(message: "Anonymous user cannot order.");
             }
 
             var catalogItems = basket.BasketItems.Select(bi => bi.CatalogItem).ToList();

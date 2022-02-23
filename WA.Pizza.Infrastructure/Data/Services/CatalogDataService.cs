@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using WA.Pizza.Core.Models;
 using WA.Pizza.Infrastructure.DTO.Catalog;
 using Mapster;
+using WA.Pizza.Core.Exceptions;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
@@ -64,13 +65,11 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             if (catalogItem == null)
             {
-                throw new ArgumentNullException("Catalog item cannot be found or it is deleted.");
+                throw new ItemNotFoundException("Catalog item cannot be found or it is deleted.");
             }
 
             _dbContext.CatalogItems.Remove(catalogItem);
             await _dbContext.SaveChangesAsync();
         }
-
-
     }
 }

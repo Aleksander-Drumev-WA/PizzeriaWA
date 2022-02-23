@@ -32,6 +32,7 @@ namespace WA.Pizza.Web.Controllers
         }
 
         [HttpGet]
+        [Route("order")]
         public Task GetOrder(int orderId)
         {
             return _orderDataService.GetOrderAsync(orderId);

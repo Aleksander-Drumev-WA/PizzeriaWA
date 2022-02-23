@@ -20,6 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Default")
     ));
 
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<BasketDataService>();
 builder.Services.AddScoped<CatalogDataService>();
 builder.Services.AddScoped<OrderDataService>();
@@ -37,8 +39,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.CustomExceptionHandlerMiddleware();
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+app.UseSwagger();
+app.UseSwaggerUI(s =>
+{
+    s.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    s.RoutePrefix = string.Empty;
+});
 
 app.UseRouting();
 

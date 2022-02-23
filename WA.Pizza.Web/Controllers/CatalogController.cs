@@ -15,7 +15,7 @@ namespace WA.Pizza.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public  Task GetCatalog()
+        public Task GetCatalog()
         {
             return _catalogDataService.GetAllAsync();
         }
