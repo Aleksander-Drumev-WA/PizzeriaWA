@@ -1,5 +1,7 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using System.Net;
 using WA.Pizza.Core.Exceptions;
+using WA.Pizza.Web.Extensions;
 
 namespace WA.Pizza.Web.BackgroundJobs
 {
@@ -30,13 +32,26 @@ namespace WA.Pizza.Web.BackgroundJobs
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
+            var pathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            await context.Response.WriteAsync(new ErrorDetails()
+            if (exception.GetType().FullName == "ItemNotFoundException")
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            }
+            else
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+            await context.Response.WriteAsJsonAsync(new
             {
                 StatusCode = context.Response.StatusCode,
-                Message = exception.Message
+                StackTrace = exception.StackTrace,
+                Message = exception.Message,
+                Path = pathFeature?.Path,
+                InnerExceptionMessages = exception.GetInnerExceptionMessages()
             }.ToString());
         }
+
+
     }
 }

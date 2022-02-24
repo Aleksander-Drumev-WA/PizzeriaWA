@@ -235,7 +235,7 @@ namespace Pizzeria.Tests
         }
 
         [Fact]
-        public async Task User_wants_more_quantity_than_storage_quantity_when_updating_basket_item()
+        public async Task User_tries_to_order_more_than_we_have_on_storage()
         {
             // Arrange
             var user = new User

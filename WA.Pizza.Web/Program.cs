@@ -39,14 +39,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.CustomExceptionHandlerMiddleware();
+app.UseExceptionHandler(ab => ab.CustomExceptionHandlerMiddleware());
 app.UseHttpsRedirection();
 
 app.UseSwagger();
 app.UseSwaggerUI(s =>
 {
     s.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-    s.RoutePrefix = string.Empty;
 });
 
 app.UseRouting();
