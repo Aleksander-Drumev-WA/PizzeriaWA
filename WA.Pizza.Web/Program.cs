@@ -2,6 +2,8 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
 using WA.Pizza.Core.Models;
 using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Services;
@@ -10,7 +12,15 @@ using WA.Pizza.Infrastructure.Services.Mapster;
 using WA.Pizza.Web.Extensions;
 using WA.Pizza.Web.Services.Validators;
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+Log.Information("Starting up");
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog((ctx, lc) => lc
+.ReadFrom.Configuration(ctx.Configuration));
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -38,8 +48,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-app.UseExceptionHandler(ab => ab.CustomExceptionHandlerMiddleware());
+app.UseSerilogRequestLogging();
+app.CustomExceptionHandlerMiddleware();
 app.UseHttpsRedirection();
 
 app.UseSwagger();
