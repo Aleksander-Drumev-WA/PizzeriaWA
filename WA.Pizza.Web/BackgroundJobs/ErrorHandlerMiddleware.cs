@@ -38,7 +38,14 @@ namespace WA.Pizza.Web.BackgroundJobs
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var pathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-            _logger.LogError($"At path: {pathFeature?.Path} occured {exception.GetType().Name} with status code: {context.Response.StatusCode} and message: {exception.Message}. Stack trace: {exception.StackTrace}. Inner exceptions: {string.Join(Environment.NewLine, exception.GetInnerExceptionMessages())}");
+
+            _logger.LogError($"At path: {pathFeature?.Path}" +
+                $" occured {exception.GetType().Name}" +
+                $" with status code: {context.Response.StatusCode}" +
+                $" and message: {exception.Message}." +
+                $" Stack trace: {exception.StackTrace}." +
+                $" Inner exceptions: {string.Join(Environment.NewLine, exception.GetInnerExceptionMessages())}");
+
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsJsonAsync(new
             {
