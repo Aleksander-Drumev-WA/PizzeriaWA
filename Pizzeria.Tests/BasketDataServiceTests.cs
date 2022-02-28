@@ -37,6 +37,7 @@ namespace Pizzeria.Tests
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
+                UserId = null,
                 CatalogItemId = catalogItem.Id,
                 Quantity = 60,
                 Name = catalogItem.Name,
@@ -59,7 +60,8 @@ namespace Pizzeria.Tests
                 bi.Name == request.Name && 
                 bi.Price == request.Price && 
                 bi.CatalogItemId == request.CatalogItemId &&
-                bi.BasketId != null);
+                bi.BasketId != null && 
+                bi.Basket.UserId == null);
         }
 
         [Fact]
@@ -80,6 +82,7 @@ namespace Pizzeria.Tests
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
+                UserId = user.Id,
                 CatalogItemId = catalogItem.Id,
                 Quantity = 60,
                 Name = catalogItem.Name,
@@ -88,7 +91,7 @@ namespace Pizzeria.Tests
             var sut = new BasketDataService(_dbContext);
 
             // Act
-            var basketId = await sut.AddItemToBasketAsync(request, user.Id);
+            var basketId = await sut.AddItemToBasketAsync(request);
 
             // Assert
             var basketToAssert = await _dbContext.Baskets.FindAsync(basketId);
@@ -115,11 +118,15 @@ namespace Pizzeria.Tests
             var catalogItems = Helper.GenerateCatalogItems(1, 110);
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
             await _dbContext.SaveChangesAsync();
+            var catalogItem = catalogItems.First();
             var request = new CatalogItemToBasketItemRequest
             {
                 BasketId = null,
-                CatalogItemId = catalogItems[0].Id,
-                Quantity = 120
+                UserId = null,
+                CatalogItemId = catalogItem.Id,
+                Quantity = 120,
+                Name = catalogItem.Name,
+                Price = catalogItem.Price
             };
 
             // Act
@@ -175,7 +182,7 @@ namespace Pizzeria.Tests
         }
 
         [Fact]
-        public async Task User_changes_basketItem_quantity()
+        public async Task User_changes_basketItem_quantity_successfully()
         {
             // Arrange
             var user = new User
@@ -215,6 +222,7 @@ namespace Pizzeria.Tests
                 Name = firstCatalogItem.Name,
                 Price = firstCatalogItem.Price,
             };
+            var resultStorageQuantity = firstCatalogItem.StorageQuantity - dto.Quantity;
             var sut = new BasketDataService(_dbContext);
 
             // Act
@@ -222,7 +230,58 @@ namespace Pizzeria.Tests
 
             // Assert
             var updatedCatalogItem = await _dbContext.BasketItems.FindAsync(updatedItemId);
-            updatedCatalogItem.Quantity.Should().Be(22);
+            updatedCatalogItem!.Quantity.Should().Be(22);
+            updatedCatalogItem.CatalogItem.StorageQuantity.Should().Be(resultStorageQuantity);
+        }
+
+        [Fact]
+        public async Task User_tries_to_order_more_than_we_have_on_storage()
+        {
+            // Arrange
+            var user = new User
+            {
+                UserName = Internet.UserName(),
+                Email = Internet.Email(),
+                PasswordHash = Lorem.Sentence(8),
+            };
+            await _dbContext.Users.AddAsync(user);
+            var catalogItems = Helper.GenerateCatalogItems(4, 25);
+            await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
+            await _dbContext.SaveChangesAsync();
+            var basketItems = new List<BasketItem>();
+            foreach (var currentCatalogItem in catalogItems)
+            {
+                basketItems.Add(new BasketItem
+                {
+                    CatalogItemId = currentCatalogItem.Id,
+                    Quantity = 5,
+                    Name = currentCatalogItem.Name,
+                    Price = currentCatalogItem.Price,
+                });
+            }
+            var basket = new Basket
+            {
+                UserId = user.Id,
+                BasketItems = basketItems
+            };
+            await _dbContext.Baskets.AddAsync(basket);
+            await _dbContext.SaveChangesAsync();
+            var firstCatalogItem = catalogItems.First();
+            var dto = new BasketItemDTO
+            {
+                BasketId = basket.Id,
+                CatalogItemId = firstCatalogItem.Id,
+                Quantity = 2200,
+                Name = firstCatalogItem.Name,
+                Price = firstCatalogItem.Price,
+            };
+            var sut = new BasketDataService(_dbContext);
+
+            // Act
+            Func<Task> act = () => sut.UpdateItemAsync(dto);
+
+            //Assert
+            await act.Should().ThrowAsync<ArgumentException>().WithMessage("Not enough stock in storage.");
         }
 
         [Fact]
@@ -261,7 +320,7 @@ namespace Pizzeria.Tests
             var sut = new BasketDataService(_dbContext);
 
             // Act
-            await sut.RemoveBasketItemAsync(basketItemToTest.Id);
+            await sut.RemoveBasketItem(basketItemToTest.Id);
 
             // Assert
             var ensureDeletedBasketItem = await _dbContext.BasketItems.FindAsync(basketItemToTest.Id);

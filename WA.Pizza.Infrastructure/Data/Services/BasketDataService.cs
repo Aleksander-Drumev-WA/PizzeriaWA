@@ -4,6 +4,7 @@ using WA.Pizza.Core.Models;
 using Mapster;
 using WA.Pizza.Infrastructure.DTO.Basket;
 using WA.Pizza.Infrastructure.DTO.Catalog;
+using WA.Pizza.Core.Exceptions;
 
 namespace WA.Pizza.Infrastructure.Data.Services
 {
@@ -28,11 +29,11 @@ namespace WA.Pizza.Infrastructure.Data.Services
             return basket.ProjectToType<BasketDTO>().ToListAsync();
         }
 
-        public async Task<int> AddItemToBasketAsync(CatalogItemToBasketItemRequest request, int? userId = null)
+        public async Task<int> AddItemToBasketAsync(CatalogItemToBasketItemRequest request)
         {
             Basket? basket = await _dbContext
                 .Baskets
-                .FirstOrDefaultAsync(b => b.UserId == userId || b.Id == request.BasketId);
+                .FirstOrDefaultAsync(b => b.UserId == request.UserId || b.Id == request.BasketId);
 
             var catalogItem = await _dbContext
                 .CatalogItems
@@ -40,7 +41,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             if (basket == null)
             {
-                basket = await AssignBasketAsync(userId);
+                basket = await AssignBasketAsync(request.UserId);
             }
             if (catalogItem.StorageQuantity < request.Quantity)
             {
@@ -61,19 +62,30 @@ namespace WA.Pizza.Infrastructure.Data.Services
         {
             var localBasketItem = updatedBasketItem.Adapt<BasketItem>();
 
+            var catalogItem = _dbContext
+                .CatalogItems
+                .First(ci => ci.Id == updatedBasketItem.CatalogItemId);
+
+
             if (localBasketItem == null)
             {
-                throw new ArgumentNullException("Basket item cannot be found or deleted.");
+                throw new ItemNotFoundException("Basket item cannot be found or deleted.");
+            }
+            if (catalogItem.StorageQuantity < updatedBasketItem.Quantity)
+            {
+                throw new ArgumentException("Not enough stock in storage.");
             }
 
+            catalogItem.StorageQuantity -= updatedBasketItem.Quantity;
             _dbContext.BasketItems.Update(localBasketItem);
+            _dbContext.CatalogItems.Update(catalogItem);
             await _dbContext.SaveChangesAsync();
 
 
             return localBasketItem.Id;
         }
 
-        public async Task RemoveBasketItemAsync(int basketItemId)
+        public async Task RemoveBasketItem(int basketItemId)
         {
             BasketItem? basketItem = await _dbContext
                 .BasketItems

@@ -10,6 +10,7 @@ using FluentAssertions;
 using Pizzeria.Tests.Helpers;
 using WA.Pizza.Infrastructure.Data.Services;
 using WA.Pizza.Infrastructure.Data;
+using WA.Pizza.Core.Exceptions;
 
 namespace Pizzeria.Tests
 {
@@ -196,6 +197,8 @@ namespace Pizzeria.Tests
             await _dbContext.Baskets.AddAsync(basket);
             await _dbContext.SaveChangesAsync();
             var sut = new OrderDataService(_dbContext);
+            var basketItemsBeforeCleaningIt = new List<BasketItem>();
+            basketItemsBeforeCleaningIt.AddRange(basketItems);
             var orderId = await sut.CreateOrderAsync(basket.Id);
 
             // Act
@@ -204,8 +207,8 @@ namespace Pizzeria.Tests
             // Assert
             order.Should().NotBeNull();
             order.OrderItems.All(oi => oi != null).Should().BeTrue();
-            order.OrderItems.Should().HaveCount(basketItems.Count);
-            order.OrderItems.Should().BeEquivalentTo(basketItems, options => options.ExcludingMissingMembers());
+            order.OrderItems.Should().HaveCount(basketItemsBeforeCleaningIt.Count);
+            order.OrderItems.Should().BeEquivalentTo(basketItemsBeforeCleaningIt, options => options.ExcludingMissingMembers());
         }
 
         [Fact]
@@ -239,7 +242,7 @@ namespace Pizzeria.Tests
             Func<Task> act = () => sut.CreateOrderAsync(basket.Id);
 
             // Assert
-            await act.Should().ThrowAsync<ArgumentNullException>().WithMessage("Anonymous user cannot order.");
+            await act.Should().ThrowAsync<ItemNotFoundException>().WithMessage("Anonymous user cannot order.");
         }
     }
 }

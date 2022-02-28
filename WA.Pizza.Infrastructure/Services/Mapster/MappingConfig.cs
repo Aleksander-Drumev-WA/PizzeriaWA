@@ -60,7 +60,8 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Map(dest => dest.Price, src => src.Price)
 				.Map(dest => dest.BasketId, src => src.BasketId)
 				.Map(dest => dest.CatalogItemId, src => src.CatalogItemId)
-				.Map(dest => dest.Quantity, src => src.Quantity);
+				.Map(dest => dest.Quantity, src => src.Quantity)
+				.Map(dest => dest.Basket.UserId, src => src.UserId);
 
 			TypeAdapterConfig<BasketItemDTO, BasketItem>
 				.NewConfig()
