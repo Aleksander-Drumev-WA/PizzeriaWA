@@ -49,7 +49,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseSerilogRequestLogging();
-app.CustomExceptionHandlerMiddleware();
+app.UseExceptionHandler(ab => ab.ExceptionHandlerConfigure(app.Environment));
 app.UseHttpsRedirection();
 
 app.UseSwagger();
