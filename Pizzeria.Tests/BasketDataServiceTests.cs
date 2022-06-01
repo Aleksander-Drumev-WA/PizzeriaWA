@@ -216,6 +216,7 @@ namespace Pizzeria.Tests
             var firstCatalogItem = catalogItems.First();
             var dto = new BasketItemDTO
             {
+                Id = 1,
                 BasketId = basket.Id,
                 CatalogItemId = firstCatalogItem.Id,
                 Quantity = 22,
@@ -269,6 +270,7 @@ namespace Pizzeria.Tests
             var firstCatalogItem = catalogItems.First();
             var dto = new BasketItemDTO
             {
+                Id = 1,
                 BasketId = basket.Id,
                 CatalogItemId = firstCatalogItem.Id,
                 Quantity = 2200,

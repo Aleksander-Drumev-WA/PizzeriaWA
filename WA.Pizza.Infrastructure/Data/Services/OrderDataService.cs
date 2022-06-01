@@ -103,7 +103,6 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             order.OrderStatus = (OrderStatus)Enum.Parse(typeof(OrderStatus), orderStatus);
 
-            _dbContext.Orders.Update(order);
             await _dbContext.SaveChangesAsync();
 
             return order.Id;
@@ -117,7 +116,6 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 .ProjectToType<OrderDTO>()
                 .FirstAsync(o => o.Id == orderId);
 
-            // ProjectToType
             return order;
         }
     }

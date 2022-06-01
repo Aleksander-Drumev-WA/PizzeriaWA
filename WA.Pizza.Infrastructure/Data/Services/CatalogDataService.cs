@@ -22,15 +22,24 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
         public async Task<int> AddOrUpdateAsync(CatalogItemDTO dto)
         {
-            var catalogItem = dto.Adapt<CatalogItem>();
+            var catalogItem = _dbContext
+                              .CatalogItems
+                              .First(ci => ci.Id == dto.Id);
 
-            if (dto.Id == null)
+            if (catalogItem == null)
             {
+                catalogItem = new CatalogItem
+                {
+                    Name = dto.Name,
+                    PictureBytes = dto.PictureBytes,
+                    Price = dto.Price,
+                    StorageQuantity = dto.StorageQuantity,
+                };
                 await _dbContext.CatalogItems.AddAsync(catalogItem);
             }
             else
             {
-                _dbContext.CatalogItems.Update(catalogItem);
+                dto.Adapt(catalogItem);
             }
 
             await _dbContext.SaveChangesAsync();

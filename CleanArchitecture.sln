@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WA.Pizza.Infrastructure", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WA.Pizza.Core", "WA.Pizza.Core\WA.Pizza.Core.csproj", "{E621E5CB-4BA8-45C2-9EC8-0BB136B7DE38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pizzeria.Tests", "Pizzeria.Tests\Pizzeria.Tests.csproj", "{A9934344-9BCE-4112-BBA1-ED01037D9812}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pizzeria.Tests", "Pizzeria.Tests\Pizzeria.Tests.csproj", "{A9934344-9BCE-4112-BBA1-ED01037D9812}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{C91B95DC-21D6-46DD-BEB7-40725609E6B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A9934344-9BCE-4112-BBA1-ED01037D9812}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9934344-9BCE-4112-BBA1-ED01037D9812}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9934344-9BCE-4112-BBA1-ED01037D9812}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C91B95DC-21D6-46DD-BEB7-40725609E6B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C91B95DC-21D6-46DD-BEB7-40725609E6B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C91B95DC-21D6-46DD-BEB7-40725609E6B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C91B95DC-21D6-46DD-BEB7-40725609E6B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
