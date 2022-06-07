@@ -28,13 +28,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
             if (catalogItem == null)
             {
-                catalogItem = new CatalogItem
-                {
-                    Name = dto.Name,
-                    PictureBytes = dto.PictureBytes,
-                    Price = dto.Price,
-                    StorageQuantity = dto.StorageQuantity,
-                };
+                dto.Adapt(catalogItem);
                 await _dbContext.CatalogItems.AddAsync(catalogItem);
             }
             else

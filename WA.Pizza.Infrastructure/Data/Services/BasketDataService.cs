@@ -66,10 +66,10 @@ namespace WA.Pizza.Infrastructure.Data.Services
         // I think user can only change the quantity
         public async Task<int> UpdateItemAsync(BasketItemDTO updatedBasketItem)
         {
-            var localBasketItem = _dbContext
+            var localBasketItem = await _dbContext
             .BasketItems
             .Include(bi => bi.CatalogItem)
-            .FirstOrDefault(bi => bi.Id == updatedBasketItem.Id);
+            .FirstOrDefaultAsync(bi => bi.Id == updatedBasketItem.Id);
 
             if (localBasketItem == null)
             {

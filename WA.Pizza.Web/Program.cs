@@ -12,14 +12,15 @@ using WA.Pizza.Infrastructure.Services.Mapster;
 using WA.Pizza.Web.Extensions;
 using WA.Pizza.Web.Services.Validators;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.Seq("http://localhost:5341")
-    .CreateBootstrapLogger();
 
-Log.Information("Starting up");
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Warning()
+    .WriteTo.Seq(builder.Configuration.GetSection("Serilog").GetSection("Seq").GetSection("Url").Value)
+    .CreateBootstrapLogger();
+
 builder.Host.UseSerilog();
 
 // Add services to the container.
@@ -66,7 +67,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-//app.SeedDatabase();
+app.SeedDatabase();
 app.Run();
 
 Log.CloseAndFlush();

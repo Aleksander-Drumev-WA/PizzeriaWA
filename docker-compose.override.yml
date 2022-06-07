@@ -1,41 +1,32 @@
 version: '3.4'
 
 services:
-  wa.pizza.web:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: 'mssql-wapizza'
     ports:
       - "1433:1433"
     volumes:
       - db-data:/var/opt/mssql/data
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=#sql-pass22_
-  seq:
-    image: datalust/seq
-    volumes:
-      - seq-data:/data
-    ports:
-      - "80:80"
-      - "5341:5341"
-    environment:
-      - ACCEPT_EULA=Y
-      - SEQ_FIRSTRUN_ADMINUSERNAME=admin
-      - SEQ_FIRSTRUN_ADMINPASSWORDHASH=$2a$04$TQ14irwgQF7mLi4kDQ7qAuz4sgzY0sl1UcnvO8zujDvepQ5CcGzeq
-      - SEQ_FIRSTRUN_REQUIREAUTHTENTICATIONFORHTTPINGESTION=True
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "#sql-pass22_"
+    user: root
+    restart: unless-stopped
 
+
+  seq:
+    container_name: 'seq-wapizza'
+    ports:
+      - "5122:80"
+    environment:
+      ACCEPT_EULA: "Y"
+
+  wa.pizza.web:
+    container_name: 'web-wapizza'
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "5123:80"
 
 volumes:
- db-data:
-    driver: local
- seq-data:
-    driver: local
+  db-data:

@@ -1,8 +1,18 @@
 version: '3.4'
 
 services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  seq:
+    image: datalust/seq:latest
+
   wa.pizza.web:
     image: ${DOCKER_REGISTRY-}wapizzaweb
     build:
       context: .
       dockerfile: WA.Pizza.Web/Dockerfile
+    depends_on:
+      - mssql
+      - seq
+    

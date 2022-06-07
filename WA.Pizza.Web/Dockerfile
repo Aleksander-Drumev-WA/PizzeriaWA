@@ -1,3 +1,4 @@
+
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
@@ -14,6 +15,7 @@ RUN dotnet restore "WA.Pizza.Web/WA.Pizza.Web.csproj"
 COPY . .
 WORKDIR "/src/WA.Pizza.Web"
 RUN dotnet build "WA.Pizza.Web.csproj" -c Release -o /app/build
+
 
 FROM build AS publish
 RUN dotnet publish "WA.Pizza.Web.csproj" -c Release -o /app/publish
