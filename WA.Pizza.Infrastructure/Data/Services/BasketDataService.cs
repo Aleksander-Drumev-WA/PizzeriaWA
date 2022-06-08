@@ -48,8 +48,14 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 throw new ArgumentException("Not enough stock in storage.");
             }
 
-            var basketItem = request.Adapt<BasketItem>();
-            basketItem.BasketId = basket.Id;
+            var basketItem = new BasketItem
+            {
+                BasketId = basket.Id,
+                CatalogItemId = request.CatalogItemId,
+                Name = request.Name,
+                Price = request.Price,
+                Quantity = request.Quantity,
+            };
 
             await _dbContext.BasketItems.AddAsync(basketItem);
             await _dbContext.SaveChangesAsync();
@@ -60,25 +66,26 @@ namespace WA.Pizza.Infrastructure.Data.Services
         // I think user can only change the quantity
         public async Task<int> UpdateItemAsync(BasketItemDTO updatedBasketItem)
         {
-            var localBasketItem = updatedBasketItem.Adapt<BasketItem>();
-
-            var catalogItem = _dbContext
-                .CatalogItems
-                .First(ci => ci.Id == updatedBasketItem.CatalogItemId);
-
+            var localBasketItem = await _dbContext
+            .BasketItems
+            .Include(bi => bi.CatalogItem)
+            .FirstOrDefaultAsync(bi => bi.Id == updatedBasketItem.Id);
 
             if (localBasketItem == null)
             {
                 throw new ItemNotFoundException("Basket item cannot be found or deleted.");
             }
-            if (catalogItem.StorageQuantity < updatedBasketItem.Quantity)
+            if (localBasketItem.CatalogItem.StorageQuantity < updatedBasketItem.Quantity)
             {
                 throw new ArgumentException("Not enough stock in storage.");
             }
 
-            catalogItem.StorageQuantity -= updatedBasketItem.Quantity;
-            _dbContext.BasketItems.Update(localBasketItem);
-            _dbContext.CatalogItems.Update(catalogItem);
+            // this changes updatedBasketItem props
+            // localBasketItem.Adapt(updatedBasketItem);
+
+            updatedBasketItem.Adapt(localBasketItem);
+
+            localBasketItem.CatalogItem.StorageQuantity -= updatedBasketItem.Quantity;
             await _dbContext.SaveChangesAsync();
 
 

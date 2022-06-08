@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Security.Authentication;
 using WA.Pizza.Core.Exceptions;
 using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Seed;
-using WA.Pizza.Web.BackgroundJobs;
 
 namespace WA.Pizza.Web.Extensions
 {
@@ -15,6 +15,8 @@ namespace WA.Pizza.Web.Extensions
             using var services = applicationBuilder.ApplicationServices.CreateScope();
 
             var dbContext = services.ServiceProvider.GetService<AppDbContext>();
+            dbContext!.Database.Migrate();
+
             new CatalogItemSeeder().SeedAsync(dbContext).GetAwaiter().GetResult();
         }
 

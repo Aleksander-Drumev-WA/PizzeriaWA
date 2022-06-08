@@ -358,7 +358,5 @@ appsettings.Production.json
 *.min.css
 *.min.js
 Properties/launchSettings.json
-appsettings.Development.json
-appsettings.json
 ScaffoldingReadMe.txt
 Logging
