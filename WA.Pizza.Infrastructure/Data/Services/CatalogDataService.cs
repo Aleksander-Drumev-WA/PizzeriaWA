@@ -24,7 +24,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
         {
             var catalogItem = _dbContext
                               .CatalogItems
-                              .First(ci => ci.Id == dto.Id);
+                              .FirstOrDefault(ci => ci.Id == dto.Id);
 
             if (catalogItem == null)
             {

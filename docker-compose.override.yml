@@ -4,7 +4,7 @@ services:
   mssql:
     container_name: 'mssql-wapizza'
     ports:
-      - "1433:1433"
+      - "5121:1433"
     volumes:
       - db-data:/var/opt/mssql/data
     environment:
