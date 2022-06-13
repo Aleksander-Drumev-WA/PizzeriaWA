@@ -23,7 +23,7 @@ namespace WA.Pizza.Web.BackgroundJobs
 				.Select(b => b.UserId.ToString() ?? "Anonymous user")
 				.ToListAsync();
 
-			RecurringJob.AddOrUpdate("test12", () => Log.Information($"Users: {string.Join(", ", usersWhoForgotBasket)} have forgotten their basket."), Cron.Minutely);
+			RecurringJob.AddOrUpdate("test12", () => Log.Information($"Users: {string.Join(", ", usersWhoForgotBasket)} have forgotten their basket."), Cron.Monthly);
 		}
 	}
 }
