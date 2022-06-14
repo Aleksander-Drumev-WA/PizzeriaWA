@@ -13,6 +13,7 @@ using WA.Pizza.Infrastructure.DTO.Catalog;
 using WA.Pizza.Infrastructure.Services.Mapster;
 using WA.Pizza.Web.BackgroundJobs;
 using WA.Pizza.Web.Extensions;
+using WA.Pizza.Web.Filters;
 using WA.Pizza.Web.Services.Validators;
 
 
@@ -75,6 +76,11 @@ app.UseSwaggerUI(s =>
 
 app.UseRouting();
 app.UseAuthorization();
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+	Authorization = new [] { new HangfireAuthorizationFilter() }
+});
+RecurringJob.AddOrUpdate<ForgottenBasketsJob>("forgottenBasketsJob", job => job.RunAsync(), Cron.Weekly);
 
 app.MapControllerRoute(
     name: "default",
@@ -83,7 +89,6 @@ app.MapControllerRoute(
 app.SeedDatabase();
 app.Run();
 
-BackgroundJob.Enqueue<ForgottenBasketsJob>(x => x.NotifyUsersAboutForgottenBasket());
 Log.CloseAndFlush();
 
 Console.ReadKey(true);
