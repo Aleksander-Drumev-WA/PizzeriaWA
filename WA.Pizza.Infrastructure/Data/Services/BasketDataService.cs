@@ -48,6 +48,8 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 throw new ArgumentException("Not enough stock in storage.");
             }
 
+            basket.LastModifiedOn = DateTime.UtcNow;
+
             var basketItem = new BasketItem
             {
                 BasketId = basket.Id,
@@ -69,6 +71,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             var localBasketItem = await _dbContext
             .BasketItems
             .Include(bi => bi.CatalogItem)
+            .Include(bi => bi.Basket)
             .FirstOrDefaultAsync(bi => bi.Id == updatedBasketItem.Id);
 
             if (localBasketItem == null)
@@ -81,6 +84,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
             }
 
             updatedBasketItem.Adapt(localBasketItem);
+            localBasketItem.Basket.LastModifiedOn = DateTime.UtcNow;
 
             localBasketItem.CatalogItem.StorageQuantity -= updatedBasketItem.Quantity;
             await _dbContext.SaveChangesAsync();
