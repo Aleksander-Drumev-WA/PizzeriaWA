@@ -15,6 +15,10 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
                 .WithOne(b => b.Basket)
                 .HasForeignKey<Basket>(b => b.UserId)
                 .IsRequired(false);
+
+            entity
+                .Property(b => b.LastModifiedOn)
+                .IsRequired(false);
         }
     }
 }

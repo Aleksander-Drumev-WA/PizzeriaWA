@@ -1,5 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.SqlServer;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -9,7 +11,9 @@ using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Services;
 using WA.Pizza.Infrastructure.DTO.Catalog;
 using WA.Pizza.Infrastructure.Services.Mapster;
+using WA.Pizza.Web.BackgroundJobs;
 using WA.Pizza.Web.Extensions;
+using WA.Pizza.Web.Filters;
 using WA.Pizza.Web.Services.Validators;
 
 
@@ -17,11 +21,14 @@ using WA.Pizza.Web.Services.Validators;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Warning()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
     .WriteTo.Seq(builder.Configuration.GetSection("Serilog").GetSection("Seq").GetSection("Url").Value)
     .CreateBootstrapLogger();
 
 builder.Host.UseSerilog();
+
+Log.Information("Starting up...");
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -39,6 +46,14 @@ builder.Services.AddScoped<OrderDataService>();
 
 MappingConfig.Configure();
 
+
+builder.Services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
@@ -60,8 +75,12 @@ app.UseSwaggerUI(s =>
 });
 
 app.UseRouting();
-
 app.UseAuthorization();
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+	Authorization = new [] { new HangfireAuthorizationFilter() }
+});
+RecurringJob.AddOrUpdate<ForgottenBasketsJob>("forgottenBasketsJob", job => job.RunAsync(), Cron.Weekly);
 
 app.MapControllerRoute(
     name: "default",

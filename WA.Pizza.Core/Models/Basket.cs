@@ -13,6 +13,8 @@ namespace WA.Pizza.Core.Models
 
         public User User { get; set; }
 
-        public ICollection<BasketItem> BasketItems { get; set; }
+		public DateTime? LastModifiedOn { get; set; }
+
+		public ICollection<BasketItem> BasketItems { get; set; }
     }
 }
