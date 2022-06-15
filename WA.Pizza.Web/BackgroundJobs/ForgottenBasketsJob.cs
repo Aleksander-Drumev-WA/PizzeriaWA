@@ -28,7 +28,6 @@ namespace WA.Pizza.Web.BackgroundJobs
 				.Select(b => b.User)
 				.ToListAsync();
 
-			RecurringJob.AddOrUpdate("test12", () => Log.Information($"Users: {string.Join(", ", usersWhoForgotBasket)} have forgotten their basket."), Cron.Minutely);
 			_logger.LogInformation($"Users: { string.Join(", ", usersWhoForgotBasket.Select(u => u.UserName ?? "Anonymous user")) } have forgottern their basket.");
 
 			foreach (var user in usersWhoForgotBasket)
