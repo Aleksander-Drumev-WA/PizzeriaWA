@@ -35,5 +35,7 @@ namespace WA.Pizza.Infrastructure.Data
         public DbSet<BasketItem> BasketItems { get; set; }
 
         public DbSet<OrderItem> OrderItems { get; set; }
-    }
+
+		public DbSet<RefreshToken> RefreshTokens { get; set; }
+	}
 }

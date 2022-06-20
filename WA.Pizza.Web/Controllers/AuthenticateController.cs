@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WA.Pizza.Infrastructure.Data.Services;
+using WA.Pizza.Infrastructure.DTO.Authentication;
 using WA.Pizza.Infrastructure.DTO.User;
 
 namespace WA.Pizza.Web.Controllers
@@ -28,9 +29,15 @@ namespace WA.Pizza.Web.Controllers
 		}
 
 		[HttpPost("login")]
-		public async Task<object> Login(LoginRequest request)
+		public async Task<AuthResponseModel> Login(LoginRequest request)
 		{
 			return await _authenticationDataService.Login(request);
+		}
+
+		[HttpPost("refreshToken")]
+		public async Task<AuthResponseModel> RefreshToken(TokenRequest tokenRequest)
+		{
+			return await _authenticationDataService.VerifyToken(tokenRequest);
 		}
 	}
 }
