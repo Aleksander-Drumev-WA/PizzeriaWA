@@ -25,10 +25,12 @@ using WA.Pizza.Web.Services.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var seqConfig = "Serilog:Seq:Url";
+
 Log.Logger = new LoggerConfiguration()
 	.MinimumLevel.Information()
 	.WriteTo.Console()
-	.WriteTo.Seq(builder.Configuration.GetSection("Serilog").GetSection("Seq").GetSection("Url").Value)
+	.WriteTo.Seq(builder.Configuration.GetSection(seqConfig).Value)
 	.CreateBootstrapLogger();
 
 builder.Host.UseSerilog();
@@ -38,24 +40,6 @@ Log.Information("Starting up...");
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddFluentValidation();
-
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
-	builder.Configuration.GetConnectionString("Default")
-	));
-
-builder.Services.AddIdentity<User, Role>()
-				.AddEntityFrameworkStores<AppDbContext>()
-				.AddDefaultTokenProviders();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-	options.Password.RequireDigit = false;
-	options.Password.RequireLowercase = false;
-	options.Password.RequireNonAlphanumeric = false;
-	options.Password.RequireUppercase = false;
-	options.Password.RequiredLength = 6;
-	options.Password.RequiredUniqueChars = 0;
-});
 
 var tokenValidationParams = new TokenValidationParameters()
 {
@@ -68,53 +52,12 @@ var tokenValidationParams = new TokenValidationParameters()
 	IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
 };
 
-builder.Services.AddAuthentication(options =>
-{
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-	options.SaveToken = true;
-#if DEBUG
-	options.RequireHttpsMetadata = false;
-#endif
-	options.TokenValidationParameters = tokenValidationParams;
-});
-
-builder.Services.AddSwaggerGen(swagger =>
-{
-	swagger.SwaggerDoc("v1", new OpenApiInfo
-	{
-		Version = "v1",
-		Title = "ASP.NET Core 6 Web API"
-	});
-
-	swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-	{
-		Name = "Authorization",
-		Type = SecuritySchemeType.ApiKey,
-		Scheme = "Bearer",
-		BearerFormat = "JWT",
-		In = ParameterLocation.Header,
-		Description = $"Enter ‘Bearer’ [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\\"
-	});
-
-	swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
-	{
-		{
-			new OpenApiSecurityScheme
-			{
-				Reference = new OpenApiReference
-				{
-					Type = ReferenceType.SecurityScheme,
-					Id = "Bearer"
-				}
-			},
-			new string[] { }
-		}
-	});
-});
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
+	builder.Configuration.GetConnectionString("Default")
+	))
+	.AddIdentityService()
+	.AddJwtAuthentication(tokenValidationParams)
+	.AddSwaggerConfig();
 
 builder.Services.AddSingleton(tokenValidationParams);
 builder.Services.AddScoped<BasketDataService>();
