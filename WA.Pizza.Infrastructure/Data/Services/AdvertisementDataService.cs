@@ -1,10 +1,12 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WA.Pizza.Core.Exceptions;
 using WA.Pizza.Core.Models;
 using WA.Pizza.Infrastructure.DTO.Advertisement;
 
@@ -13,10 +15,12 @@ namespace WA.Pizza.Infrastructure.Data.Services
 	public class AdvertisementDataService
 	{
 		private readonly AppDbContext _dbContext;
+		private readonly ILogger<AdvertisementDataService> _logger;
 
-		public AdvertisementDataService(AppDbContext dbContext)
+		public AdvertisementDataService(AppDbContext dbContext, ILogger<AdvertisementDataService> logger)
 		{
 			_dbContext = dbContext;
+			_logger = logger;
 		}
 
 		public async Task<string> UrlToImageBytes(string url)
@@ -30,9 +34,12 @@ namespace WA.Pizza.Infrastructure.Data.Services
 			return imageBytesAsString;
 		}
 
-		public async Task<int> CreateAdvertisementAsync(AdvertisementPostRequest adRequest)
+		public async Task<int> CreateAdvertisementAsync(CreateAdvertisementRequest adRequest, Guid apiKey)
 		{
-			var ad = adRequest.Adapt(new Advertisement());
+			var ad = adRequest.Adapt<Advertisement>();
+
+			var client = _dbContext.AdsClients.FirstAsync(i => i.ApiKey == apiKey);
+			ad.AdsClientId = client.Id;
 
 			_dbContext.Advertisements.Add(ad);
 			await _dbContext.SaveChangesAsync();
@@ -40,7 +47,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 			return ad.Id;
 		}
 
-		public async Task<int> UpdateAdvertisementAsync(AdvertisementPutRequest adRequest)
+		public async Task<int> UpdateAdvertisementAsync(UpdateAdvertisementRequest adRequest)
 		{
 			var ad = await _dbContext
 				.Advertisements
@@ -48,8 +55,9 @@ namespace WA.Pizza.Infrastructure.Data.Services
 
 			if (ad == null)
 			{
-				adRequest.Failed = true;
-				return -1;
+				string errorMessage = $"No advertisements found with ID {adRequest.Id}.";
+				_logger.LogError(errorMessage);
+				throw new ItemNotFoundException(nameof(Advertisement));
 			}
 
 			adRequest.Adapt(ad);
@@ -59,47 +67,18 @@ namespace WA.Pizza.Infrastructure.Data.Services
 			return ad.Id;
 		}
 
-		public async Task<AdvertisementDTO> GetAdvertisementByIdAsync(int adId)
+		public Task<List<AdvertisementDTO>> GetAllAdvertisementsAsync(Guid apiKey)
 		{
-			var ad = await _dbContext
-				.Advertisements
-				.FirstOrDefaultAsync(a => a.Id == adId);
-
-			var adDTO = new AdvertisementDTO();
-
-			if (ad == null)
-			{
-				adDTO.Failed = true;
-				return adDTO;
-			}
-
-			ad.Adapt(adDTO);
-
-			return adDTO;
+			return _dbContext.Advertisements
+				.AsNoTracking()
+				.Where(a => a.AdsClient!.ApiKey == apiKey)
+				.ProjectToType<AdvertisementDTO>()
+				.ToListAsync();
 		}
 
-		public Task<List<AdvertisementDTO>> GetAllAdvertisementsAsync()
+		public Task<bool> ApiKeyIsValid(Guid apiKey)
 		{
-			IQueryable<Advertisement> ads = _dbContext.Advertisements;
-
-			return ads.ProjectToType<AdvertisementDTO>().ToListAsync();
-		}
-
-		public async Task<int> DeleteAdvertisementByIdAsync(int adId)
-		{
-			var ad = await _dbContext
-				.Advertisements
-				.FirstOrDefaultAsync(a => a.Id == adId);
-
-			if (ad == null)
-			{
-				return -1;
-			}
-
-			var removedEntityId = _dbContext.Advertisements.Remove(ad).Entity.Id;
-			await _dbContext.SaveChangesAsync();
-
-			return removedEntityId;
+			return _dbContext.AdsClients.AnyAsync(ac => ac.ApiKey == apiKey);
 		}
 	}
 }

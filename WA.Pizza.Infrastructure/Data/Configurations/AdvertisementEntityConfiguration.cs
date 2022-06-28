@@ -9,16 +9,6 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 		public void Configure(EntityTypeBuilder<Advertisement> entity)
 		{
 			entity
-				.Property(x => x.Advertiser)
-				.HasMaxLength(150)
-				.IsRequired();
-
-			entity
-				.Property(x => x.AdvertiserUrl)
-				.HasMaxLength(150)
-				.IsRequired();
-
-			entity
 				.Property(x => x.PictureBytes)
 				.HasMaxLength(30000)
 				.IsRequired();
@@ -30,8 +20,15 @@ namespace WA.Pizza.Infrastructure.Data.Configurations
 
 			entity
 				.Property(x => x.Description)
-				.HasMaxLength(500)
+				.HasMaxLength(512)
 				.IsRequired();
+
+			entity.Property(x => x.AdsClientId)
+				  .IsRequired();
+
+			entity.HasOne(a => a.AdsClient)
+				.WithMany(ac => ac.Advertisements)
+				.HasForeignKey(a => a.AdsClientId);
 		}
 	}
 }

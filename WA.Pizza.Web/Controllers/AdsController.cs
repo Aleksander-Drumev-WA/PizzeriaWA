@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
+using WA.Pizza.Core.Exceptions;
 using WA.Pizza.Infrastructure.Data.Services;
 using WA.Pizza.Infrastructure.DTO.Advertisement;
 using WA.Pizza.Web.Filters;
@@ -8,7 +11,6 @@ using static WA.Pizza.Core.ConstantValues;
 
 namespace WA.Pizza.Web.Controllers
 {
-	[ApiKeyAuth]
 	[Authorize(Roles = UserRoles.ADMIN_ROLE_NAME)]
 	public class AdsController : BaseController
 	{
@@ -20,64 +22,79 @@ namespace WA.Pizza.Web.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult Create(AdvertisementPostRequest request)
+		[SwaggerOperation(Summary = "Creates new advertisement")]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Malformed Request")]
+		[SwaggerResponse(StatusCodes.Status401Unauthorized, "Provided API key is not a valid key")]
+		[SwaggerResponse(StatusCodes.Status201Created, "New advertisement created")]
+		[ProducesResponseType(typeof(long), StatusCodes.Status201Created)]
+		public async Task<IActionResult> Create(
+			CreateAdvertisementRequest request,
+			[Required][FromHeader] Guid apiKey)
 		{
+
+			if (!await _advertisementDataService.ApiKeyIsValid(apiKey))
+			{
+				return Unauthorized(new { message = "Provided API key is not a valid key." });
+			}
+
 			if (request == null)
 			{
 				return BadRequest(request);
 			}
-			var result = _advertisementDataService.CreateAdvertisementAsync(request).Result;
+			var id = await _advertisementDataService.CreateAdvertisementAsync(request, apiKey);
 
-			return CreatedAtAction(nameof(Create), result);
+			return Created($"~/api/Ads/{id}", id);
 		}
 
 		[HttpPut]
-		public IActionResult Update(AdvertisementPutRequest request)
+		[SwaggerOperation(Summary = "Updates existing advertisement")]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Malformed Request")]
+		[SwaggerResponse(StatusCodes.Status401Unauthorized, "Provided API key is not a valid key")]
+		[SwaggerResponse(StatusCodes.Status404NotFound, "Advertisement not found")]
+		[SwaggerResponse(StatusCodes.Status200OK, "Advertisement updated")]
+		[ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
+		public async Task<IActionResult> Update(
+			UpdateAdvertisementRequest request,
+			[Required][FromHeader] Guid apiKey)
 		{
+			if (!await _advertisementDataService.ApiKeyIsValid(apiKey))
+			{
+				return Unauthorized(new { message = "Provided API key is not a valid key." });
+			}
+
 			if (request == null)
 			{
 				return BadRequest(request);
 			}
-			if (request.Failed)
+
+			int id;
+			try
 			{
-				return NotFound(request);
+				id = await _advertisementDataService.UpdateAdvertisementAsync(request);
+
+			}
+			catch (ItemNotFoundException ex)
+			{
+				return NotFound(ex.ToString());
 			}
 
-			var result = _advertisementDataService.UpdateAdvertisementAsync(request).Result;
-
-			return Ok(result);
+			return Ok(id);
 		}
 
-		[HttpGet("{adId}")]
-		public IActionResult Get(int adId)
+		[HttpGet]
+		[SwaggerOperation(Summary = "Returns all advertisements of client with given API key")]
+		[SwaggerResponse(StatusCodes.Status400BadRequest, "Malformed API key")]
+		[SwaggerResponse(StatusCodes.Status401Unauthorized, "Provided API key is not a valid key")]
+		[SwaggerResponse(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(List<AdvertisementDTO>), StatusCodes.Status200OK)]
+		public async Task<IActionResult> GetAll([Required][FromHeader] Guid apiKey)
 		{
-			var result = _advertisementDataService.GetAdvertisementByIdAsync(adId).Result;
-
-			if (result.Failed)
+			if (!await _advertisementDataService.ApiKeyIsValid(apiKey))
 			{
-				return NotFound(adId);
+				return Unauthorized(new { message = "Provided API key is not a valid key." });
 			}
 
-			return Ok(result);
-		}
-
-		[HttpGet()]
-		public IActionResult GetAll()
-		{
-			var result = _advertisementDataService.GetAllAdvertisementsAsync().Result;
-
-			return Ok(result);
-		}
-
-		[HttpDelete("{adId}")]
-		public IActionResult Delete(int adId)
-		{
-			var result = _advertisementDataService.DeleteAdvertisementByIdAsync(adId).Result;
-
-			if (result == -1)
-			{
-				return NotFound(adId);
-			}
+			var result = await _advertisementDataService.GetAllAdvertisementsAsync(apiKey);
 
 			return Ok(result);
 		}

@@ -4,14 +4,14 @@ namespace WA.Pizza.Core.Models
 {
 	public class Advertisement : BaseEntity
 	{
-		public string Advertiser { get; set; }
+		public string PictureBytes { get; set; } = null!;
 
-		public string AdvertiserUrl { get; set; }
+		public string Title { get; set; } = null!;
 
-		public string PictureBytes { get; set; }
+		public string? Description { get; set; } = null!;
 
-		public string Title { get; set; }
+		public int AdsClientId { get; set; }
 
-		public string Description { get; set; }
+		public AdsClient? AdsClient { get; set; }
 	}
 }

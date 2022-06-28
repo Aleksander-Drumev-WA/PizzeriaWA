@@ -39,5 +39,7 @@ namespace WA.Pizza.Infrastructure.Data
 		public DbSet<RefreshToken> RefreshTokens { get; set; }
 
 		public DbSet<Advertisement> Advertisements { get; set; }
-	}
+
+        public DbSet<AdsClient> AdsClients { get; set; }
+    }
 }
