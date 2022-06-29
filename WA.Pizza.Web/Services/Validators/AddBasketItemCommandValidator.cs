@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using WA.Pizza.Infrastructure.DTO.Catalog;
+using WA.Pizza.Infrastructure.BasketHandlers;
 
 namespace WA.Pizza.Web.Services.Validators
 {
-    public class CatalogItemToBasketItemRequestValidator : AbstractValidator<CatalogItemToBasketItemRequest>
+    public class AddBasketItemCommandValidator : AbstractValidator<AddBasketItemCommand>
     {
-        public CatalogItemToBasketItemRequestValidator()
+        public AddBasketItemCommandValidator()
         {
             RuleFor(x => x.CatalogItemId).NotNull();
             RuleFor(x => x.Quantity).InclusiveBetween(1, int.MaxValue);

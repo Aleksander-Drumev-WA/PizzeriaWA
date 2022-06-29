@@ -15,6 +15,7 @@
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.29" />
     <PackageReference Include="Hangfire.Core" Version="1.7.29" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.7.29" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WA.Pizza.Core.Models;
+using WA.Pizza.Infrastructure.BasketHandlers;
 using WA.Pizza.Infrastructure.DTO.Advertisement;
 using WA.Pizza.Infrastructure.DTO.Basket;
 using WA.Pizza.Infrastructure.DTO.Catalog;
@@ -51,7 +52,7 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Map(dest => dest.Price, src => src.CatalogItem.Price.ToString("0.00"))
 				.Map(dest => dest.PictureBytes, src => src.CatalogItem.PictureBytes);
 
-			TypeAdapterConfig<CatalogItemToBasketItemRequest, BasketItem>
+			TypeAdapterConfig<AddBasketItemCommand, BasketItem>
 				.NewConfig()
 				// error wanted theses properties mapped or ignored
 				.Ignore(dest => dest.Id)
