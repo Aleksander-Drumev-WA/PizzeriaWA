@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.SqlServer;
 using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using Serilog;
 using Serilog.Events;
 using System.Text;
 using WA.Pizza.Core.Models;
+using WA.Pizza.Infrastructure.BasketHandlers;
 using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Data.Services;
 using WA.Pizza.Infrastructure.DTO.Catalog;
@@ -60,12 +62,12 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
 	.AddSwaggerConfig();
 
 builder.Services.AddSingleton(tokenValidationParams);
-builder.Services.AddScoped<BasketDataService>();
 builder.Services.AddScoped<CatalogDataService>();
 builder.Services.AddScoped<OrderDataService>();
 builder.Services.AddScoped<AuthenticationDataService>();
 builder.Services.AddScoped<AdvertisementDataService>();
 builder.Services.AddScoped<AdsClientDataService>();
+builder.Services.AddMediatR(typeof(GetBasketQuery));
 
 MappingConfig.Configure();
 
