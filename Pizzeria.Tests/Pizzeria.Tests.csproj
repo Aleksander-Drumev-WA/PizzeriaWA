@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WA.Pizza.Infrastructure\WA.Pizza.Infrastructure.csproj" />
+    <ProjectReference Include="..\WA.Pizza.Web\WA.Pizza.Web.csproj" />
   </ItemGroup>
 
 </Project>

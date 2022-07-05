@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WA.Pizza.Infrastructure.Data;
 
@@ -11,9 +12,10 @@ using WA.Pizza.Infrastructure.Data;
 namespace WA.Pizza.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220621110309_AdvertisementsTableAdded")]
+    partial class AdvertisementsTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,34 +127,6 @@ namespace WA.Pizza.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WA.Pizza.Core.Models.AdsClient", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<Guid>("ApiKey")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("Website")
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApiKey")
-                        .IsUnique();
-
-                    b.ToTable("AdsClients");
-                });
-
             modelBuilder.Entity("WA.Pizza.Core.Models.Advertisement", b =>
                 {
                     b.Property<int>("Id")
@@ -161,13 +135,20 @@ namespace WA.Pizza.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("AdsClientId")
-                        .HasColumnType("int");
+                    b.Property<string>("Advertiser")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("AdvertiserUrl")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PictureBytes")
                         .IsRequired()
@@ -180,8 +161,6 @@ namespace WA.Pizza.Infrastructure.Migrations
                         .HasColumnType("nvarchar(150)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AdsClientId");
 
                     b.ToTable("Advertisements");
                 });
@@ -526,17 +505,6 @@ namespace WA.Pizza.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WA.Pizza.Core.Models.Advertisement", b =>
-                {
-                    b.HasOne("WA.Pizza.Core.Models.AdsClient", "AdsClient")
-                        .WithMany("Advertisements")
-                        .HasForeignKey("AdsClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AdsClient");
-                });
-
             modelBuilder.Entity("WA.Pizza.Core.Models.Basket", b =>
                 {
                     b.HasOne("WA.Pizza.Core.Models.User", "User")
@@ -602,11 +570,6 @@ namespace WA.Pizza.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("WA.Pizza.Core.Models.AdsClient", b =>
-                {
-                    b.Navigation("Advertisements");
                 });
 
             modelBuilder.Entity("WA.Pizza.Core.Models.Basket", b =>

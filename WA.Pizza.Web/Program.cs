@@ -64,6 +64,8 @@ builder.Services.AddScoped<BasketDataService>();
 builder.Services.AddScoped<CatalogDataService>();
 builder.Services.AddScoped<OrderDataService>();
 builder.Services.AddScoped<AuthenticationDataService>();
+builder.Services.AddScoped<AdvertisementDataService>();
+builder.Services.AddScoped<AdsClientDataService>();
 
 MappingConfig.Configure();
 

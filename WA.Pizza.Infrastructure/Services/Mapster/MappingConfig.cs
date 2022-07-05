@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WA.Pizza.Core.Models;
+using WA.Pizza.Infrastructure.DTO.Advertisement;
 using WA.Pizza.Infrastructure.DTO.Basket;
 using WA.Pizza.Infrastructure.DTO.Catalog;
 using WA.Pizza.Infrastructure.DTO.Orders;
@@ -89,6 +90,65 @@ namespace WA.Pizza.Infrastructure.Services.Mapster
 				.Map(dest => dest.Total, src => src.Total.ToString("0.00"))
 				.Map(dest => dest.Status, src => src.OrderStatus.ToString())
 				.Map(dest => dest.OrderItems, src => src.OrderItems);
+
+			// Advertisements
+			TypeAdapterConfig<CreateAdvertisementRequest, Advertisement>
+				.NewConfig()
+				.Ignore(dest => dest.Id)
+				.Ignore(dest => dest.AdsClientId)
+				.Ignore(dest => dest.AdsClient)
+				.Map(dest => dest.PictureBytes, src => src.PictureBytes)
+				.Map(dest => dest.Title, src => src.Title)
+				.Map(dest => dest.Description, src => src.Description);
+
+			TypeAdapterConfig<UpdateAdvertisementRequest, Advertisement>
+				.NewConfig()
+				.Ignore(dest => dest.Id)
+				.Ignore(dest => dest.AdsClient)
+				.Ignore(dest => dest.AdsClientId)
+				.IgnoreNullValues(true)
+				.Map(dest => dest.PictureBytes, src => src.PictureBytes)
+				.Map(dest => dest.Title, src => src.Title)
+				.Map(dest => dest.Description, src => src.Description);
+
+			TypeAdapterConfig<Advertisement, AdvertisementDTO>
+				.NewConfig()
+				.Map(dest => dest.Id, src => src.Id)
+				.Map(dest => dest.PictureBytes, src => src.PictureBytes)
+				.Map(dest => dest.Title, src => src.Title)
+				.Map(dest => dest.Description, src => src.Description);
+
+			// AdsClient
+			TypeAdapterConfig<AdsClient, AdsClientDto>
+				.NewConfig()
+				.Map(dest => dest.Id, src => src.Id)
+				.Map(dest => dest.Website, src => src.Website)
+				.Map(dest => dest.ApiKey, src => src.ApiKey)
+				.Map(dest => dest.Name, src => src.Name);
+
+
+			TypeAdapterConfig<AdsClient, AdsClientGridDto>
+				.NewConfig()
+				.Map(dest => dest.Id, src => src.Id)
+				.Map(dest => dest.Website, src => src.Website)
+				.Map(dest => dest.ApiKey, src => src.ApiKey)
+				.Map(dest => dest.Name, src => src.Name);
+
+			TypeAdapterConfig<CreateAdsClientRequest, AdsClient>
+				.NewConfig()
+				.Ignore(dest => dest.Id)
+				.Ignore(dest => dest.ApiKey)
+				.Ignore(dest => dest.Advertisements)
+				.Map(dest => dest.Website, src => src.Website)
+				.Map(dest => dest.Name, src => src.Name);
+
+			TypeAdapterConfig<UpdateAdsClientRequest, AdsClient>
+				.NewConfig()
+				.Ignore(dest => dest.Id)
+				.Ignore(dest => dest.Advertisements)
+				.Map(dest => dest.Website, src => src.Website)
+				.Map(dest => dest.ApiKey, src => src.ApiKey)
+				.Map(dest => dest.Name, src => src.Name);
 		}
 	}
 }
