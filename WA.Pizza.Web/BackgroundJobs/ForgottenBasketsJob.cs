@@ -1,6 +1,4 @@
-﻿using Hangfire;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
+﻿using Microsoft.EntityFrameworkCore;
 using WA.Pizza.Infrastructure.Data;
 
 namespace WA.Pizza.Web.BackgroundJobs
@@ -23,8 +21,8 @@ namespace WA.Pizza.Web.BackgroundJobs
 				.Include(b => b.BasketItems)
 				.Include(b => b.User)
 				.Where(b => b.BasketItems.Any() &&
-							b.LastModifiedOn.HasValue &&
-							DateTime.UtcNow.Subtract(b.LastModifiedOn.Value) >= TimeSpan.FromDays(7))
+					   b.LastModifiedOn.HasValue &&
+					   DateTime.UtcNow.Subtract(b.LastModifiedOn.Value) >= TimeSpan.FromDays(7))
 				.Select(b => b.User)
 				.ToListAsync();
 

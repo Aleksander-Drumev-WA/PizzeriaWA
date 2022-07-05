@@ -21,6 +21,7 @@ using WA.Pizza.Infrastructure.Services.Mapster;
 using WA.Pizza.Web.BackgroundJobs;
 using WA.Pizza.Web.Extensions;
 using WA.Pizza.Web.Filters;
+using WA.Pizza.Web.Hubs;
 using WA.Pizza.Web.Services.Validators;
 
 
@@ -48,6 +49,16 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
 builder.Services.AddIdentity<User, Role>()
 				.AddEntityFrameworkStores<AppDbContext>()
 				.AddDefaultTokenProviders();
+
+builder.Services.AddCors(options =>
+{
+	options.AddDefaultPolicy(policy =>
+	{
+		policy.AllowAnyHeader()
+			  .AllowAnyMethod()
+			  .AllowAnyOrigin();
+	});
+});
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -125,6 +136,7 @@ builder.Services.AddScoped<AuthenticationDataService>();
 builder.Services.AddScoped<AdvertisementDataService>();
 builder.Services.AddScoped<AdsClientDataService>();
 builder.Services.AddMediatR(typeof(GetBasketQuery));
+builder.Services.AddSignalR();
 
 MappingConfig.Configure();
 
@@ -147,31 +159,36 @@ if (!app.Environment.IsDevelopment())
 	app.UseHsts();
 }
 app.UseExceptionHandler(ab => ab.ExceptionHandlerConfigure(app.Environment));
+app.SeedDatabase();
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
+
+
+app.UseRouting();
+app.UseStaticFiles();
+app.UseCors();
 
 app.UseSwagger();
 app.UseSwaggerUI(s =>
 {
 	s.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
 });
-
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
-	Authorization = new [] { new HangfireAuthorizationFilter() }
+	Authorization = new[] { new HangfireAuthorizationFilter() }
 });
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 RecurringJob.AddOrUpdate<ForgottenBasketsJob>("forgottenBasketsJob", job => job.RunAsync(), Cron.Weekly);
 
-app.MapControllerRoute(
-	name: "default",
-	pattern: "{controller=Home}/{action=Index}/{id?}");
+app.UseEndpoints(endpoints =>
+{
+	endpoints.MapControllers();
+	endpoints.MapHub<ChatHub>("/hubs/chat");
+});
 
-app.SeedDatabase();
-app.Run();
+await app.RunAsync();
 
 Log.CloseAndFlush();
-
-Console.ReadKey(true);
