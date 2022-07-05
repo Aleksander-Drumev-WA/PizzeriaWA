@@ -13,6 +13,8 @@ namespace WA.Pizza.Core.Models
 
         public Basket Basket { get; set; }
 
-        public ICollection<Order> Orders { get; set; }
+		public RefreshToken RefreshToken { get; set; }
+
+		public ICollection<Order> Orders { get; set; }
     }
 }

@@ -83,9 +83,6 @@ namespace WA.Pizza.Infrastructure.Data.Services
                 throw new ArgumentException("Not enough stock in storage.");
             }
 
-            // this changes updatedBasketItem props
-            // localBasketItem.Adapt(updatedBasketItem);
-
             updatedBasketItem.Adapt(localBasketItem);
             localBasketItem.Basket.LastModifiedOn = DateTime.UtcNow;
 
