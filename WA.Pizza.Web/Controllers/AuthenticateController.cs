@@ -17,27 +17,27 @@ namespace WA.Pizza.Web.Controllers
 		}
 
 		[HttpPost("register-admin")]
-		public async Task<string> RegisterAdmin(RegisterRequest request)
+		public Task<string> RegisterAdmin(RegisterRequest request)
 		{
-			return await _authenticationDataService.RegisterAdmin(request);
+			return _authenticationDataService.RegisterAdmin(request);
 		}
 
 		[HttpPost("register")]
-		public async Task<string> Register(RegisterRequest request)
+		public Task<string> Register(RegisterRequest request)
 		{
-			return await _authenticationDataService.Register(request);
+			return _authenticationDataService.Register(request);
 		}
 
 		[HttpPost("login")]
-		public async Task<AuthResponseModel> Login(LoginRequest request)
+		public Task<AuthResponseModel> Login(LoginRequest request)
 		{
-			return await _authenticationDataService.Login(request);
+			return _authenticationDataService.Login(request);
 		}
 
 		[HttpPost("refreshToken")]
-		public async Task<AuthResponseModel> RefreshToken(TokenRequest tokenRequest)
+		public Task<AuthResponseModel> RefreshToken(TokenRequest tokenRequest)
 		{
-			return await _authenticationDataService.VerifyToken(tokenRequest);
+			return _authenticationDataService.VerifyToken(tokenRequest);
 		}
 	}
 }

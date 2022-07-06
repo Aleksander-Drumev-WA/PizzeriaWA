@@ -1,194 +1,111 @@
-using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
-using Hangfire.SqlServer;
-using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Events;
 using System.Text;
-using WA.Pizza.Core.Models;
-using WA.Pizza.Infrastructure.BasketHandlers;
 using WA.Pizza.Infrastructure.Data;
-using WA.Pizza.Infrastructure.Data.Services;
-using WA.Pizza.Infrastructure.DTO.Catalog;
 using WA.Pizza.Infrastructure.Services.Mapster;
 using WA.Pizza.Web.BackgroundJobs;
 using WA.Pizza.Web.Extensions;
 using WA.Pizza.Web.Filters;
 using WA.Pizza.Web.Hubs;
-using WA.Pizza.Web.Services.Validators;
 
-
-
-var builder = WebApplication.CreateBuilder(args);
-
-Log.Logger = new LoggerConfiguration()
-	.MinimumLevel.Information()
-	.WriteTo.Console()
-	.WriteTo.Seq(builder.Configuration.GetSection("Serilog").GetSection("Seq").GetSection("Url").Value)
-	.CreateBootstrapLogger();
-
-builder.Host.UseSerilog();
-
-Log.Information("Starting up...");
-
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddFluentValidation();
-
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
-	builder.Configuration.GetConnectionString("Default")
-	));
-
-builder.Services.AddIdentity<User, Role>()
-				.AddEntityFrameworkStores<AppDbContext>()
-				.AddDefaultTokenProviders();
-
-builder.Services.AddCors(options =>
+try
 {
-	options.AddDefaultPolicy(policy =>
+	var builder = WebApplication.CreateBuilder(args);
+
+	var seqConfig = "Serilog:Seq:Url";
+
+	var configuration = builder.Configuration;
+
+	Log.Logger = new LoggerConfiguration()
+		.MinimumLevel.Information()
+		.WriteTo.Console()
+		.WriteTo.Seq(builder.Configuration.GetSection(seqConfig).Value)
+		.CreateBootstrapLogger();
+
+	builder.Host.UseSerilog();
+
+	Log.Information("Starting up...");
+
+	// Add services to the container.
+	builder.Services.AddControllers();
+	builder.Services.AddFluentValidation();
+
+	var tokenValidationParams = new TokenValidationParameters()
 	{
-		policy.AllowAnyHeader()
-			  .AllowAnyMethod()
-			  .AllowAnyOrigin();
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidAudience = configuration["JWT:ValidAudience"],
+		ValidIssuer = configuration["JWT:ValidIssuer"],
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+	};
+
+	builder.Services.AddSingleton(tokenValidationParams);
+
+	builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
+		builder.Configuration.GetConnectionString("Default")
+		))
+		.AddIdentityService()
+		.InjectServices()
+		.AddJwtAuthentication(tokenValidationParams)
+		.AddSwaggerConfig()
+		.ConfigureCors()
+		.InjectHangfire(configuration);
+
+	MappingConfig.Configure();
+
+	var app = builder.Build();
+
+	// Configure the HTTP request pipeline.
+	if (!app.Environment.IsDevelopment())
+	{
+		app.UseExceptionHandler("/Home/Error");
+		// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+		app.UseHsts();
+	}
+	app.UseExceptionHandler(ab => ab.ExceptionHandlerConfigure(app.Environment));
+	app.SeedDatabase();
+	app.UseSerilogRequestLogging();
+	app.UseHttpsRedirection();
+
+
+	app.UseRouting();
+	app.UseStaticFiles();
+	app.UseCors();
+
+	app.UseSwagger();
+	app.UseSwaggerUI(s =>
+	{
+		s.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
 	});
-});
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-	options.Password.RequireDigit = false;
-	options.Password.RequireLowercase = false;
-	options.Password.RequireNonAlphanumeric = false;
-	options.Password.RequireUppercase = false;
-	options.Password.RequiredLength = 6;
-	options.Password.RequiredUniqueChars = 0;
-});
-
-var tokenValidationParams = new TokenValidationParameters()
-{
-	ValidateIssuer = true,
-	ValidateAudience = true,
-	ValidateLifetime = true,
-	ValidateIssuerSigningKey = true,
-	ValidAudience = builder.Configuration["JWT:ValidAudience"],
-	ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-	IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-};
-
-builder.Services.AddAuthentication(options =>
-{
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-	options.SaveToken = true;
-#if DEBUG
-	options.RequireHttpsMetadata = false;
-#endif
-	options.TokenValidationParameters = tokenValidationParams;
-});
-
-builder.Services.AddSwaggerGen(swagger =>
-{
-	swagger.SwaggerDoc("v1", new OpenApiInfo
+	app.UseHangfireDashboard("/hangfire", new DashboardOptions
 	{
-		Version = "v1",
-		Title = "ASP.NET Core 6 Web API"
+		Authorization = new[] { new HangfireAuthorizationFilter() }
 	});
 
-	swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+	app.UseAuthentication();
+	app.UseAuthorization();
+
+	RecurringJob.AddOrUpdate<ForgottenBasketsJob>("forgottenBasketsJob", job => job.RunAsync(), Cron.Weekly);
+
+	app.UseEndpoints(endpoints =>
 	{
-		Name = "Authorization",
-		Type = SecuritySchemeType.ApiKey,
-		Scheme = "Bearer",
-		BearerFormat = "JWT",
-		In = ParameterLocation.Header,
-		Description = $"Enter ‘Bearer’ [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\\"
+		endpoints.MapControllers();
+		endpoints.MapHub<ChatHub>("/hubs/chat");
 	});
 
-	swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
-	{
-		{
-			new OpenApiSecurityScheme
-			{
-				Reference = new OpenApiReference
-				{
-					Type = ReferenceType.SecurityScheme,
-					Id = "Bearer"
-				}
-			},
-			new string[] { }
-		}
-	});
-});
-
-builder.Services.AddSingleton(tokenValidationParams);
-builder.Services.AddScoped<CatalogDataService>();
-builder.Services.AddScoped<OrderDataService>();
-builder.Services.AddScoped<AuthenticationDataService>();
-builder.Services.AddScoped<AdvertisementDataService>();
-builder.Services.AddScoped<AdsClientDataService>();
-builder.Services.AddMediatR(typeof(GetBasketQuery));
-builder.Services.AddSignalR();
-
-MappingConfig.Configure();
-
-
-builder.Services.AddHangfire(configuration => configuration
-		.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-		.UseSimpleAssemblyNameTypeSerializer()
-		.UseRecommendedSerializerSettings()
-		.UseSqlServerStorage(builder.Configuration.GetConnectionString("Default")));
-
-builder.Services.AddHangfireServer();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-	app.UseExceptionHandler("/Home/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
+	await app.RunAsync();
 }
-app.UseExceptionHandler(ab => ab.ExceptionHandlerConfigure(app.Environment));
-app.SeedDatabase();
-app.UseSerilogRequestLogging();
-app.UseHttpsRedirection();
-
-
-app.UseRouting();
-app.UseStaticFiles();
-app.UseCors();
-
-app.UseSwagger();
-app.UseSwaggerUI(s =>
+catch (Exception ex)
 {
-	s.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-});
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
+	Log.Fatal(ex, "Application accidentally crashed!");
+	throw;
+}
+finally
 {
-	Authorization = new[] { new HangfireAuthorizationFilter() }
-});
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-RecurringJob.AddOrUpdate<ForgottenBasketsJob>("forgottenBasketsJob", job => job.RunAsync(), Cron.Weekly);
-
-app.UseEndpoints(endpoints =>
-{
-	endpoints.MapControllers();
-	endpoints.MapHub<ChatHub>("/hubs/chat");
-});
-
-await app.RunAsync();
-
-Log.CloseAndFlush();
+	Log.CloseAndFlush();
+}
