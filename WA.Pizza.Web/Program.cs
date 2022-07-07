@@ -15,14 +15,12 @@ try
 {
 	var builder = WebApplication.CreateBuilder(args);
 
-	var seqConfig = "Serilog:Seq:Url";
-
 	var configuration = builder.Configuration;
 
 	Log.Logger = new LoggerConfiguration()
 		.MinimumLevel.Information()
 		.WriteTo.Console()
-		.WriteTo.Seq(builder.Configuration.GetSection(seqConfig).Value)
+		.WriteTo.Seq(builder.Configuration.GetSection("SeqConfig").Value)
 		.CreateBootstrapLogger();
 
 	builder.Host.UseSerilog();
