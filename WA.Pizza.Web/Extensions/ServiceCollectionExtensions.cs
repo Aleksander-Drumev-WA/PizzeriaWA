@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 using WA.Pizza.Core.Models;
+using WA.Pizza.Infrastructure.BasketHandlers;
 using WA.Pizza.Infrastructure.Data;
+using WA.Pizza.Infrastructure.Data.Services;
 
 namespace WA.Pizza.Web.Extensions
 {
@@ -82,6 +87,47 @@ namespace WA.Pizza.Web.Extensions
 					}
 				});
 			});
+
+			return services;
+		}
+
+		public static IServiceCollection ConfigureCors(this IServiceCollection services)
+		{
+			services.AddCors(options =>
+			{
+				options.AddDefaultPolicy(policy =>
+				{
+					policy.AllowAnyHeader()
+						  .AllowAnyMethod()
+						  .AllowAnyOrigin();
+				});
+			});
+
+			return services;
+		}
+
+		public static IServiceCollection InjectServices(this IServiceCollection services)
+		{
+			services.AddScoped<CatalogDataService>();
+			services.AddScoped<OrderDataService>();
+			services.AddScoped<AuthenticationDataService>();
+			services.AddScoped<AdvertisementDataService>();
+			services.AddScoped<AdsClientDataService>();
+			services.AddMediatR(typeof(GetBasketQuery));
+			services.AddSignalR();
+
+			return services;
+		}
+
+		public static IServiceCollection InjectHangfire(this IServiceCollection services, IConfiguration configuration)
+		{
+			services.AddHangfire(conf => conf
+					.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+					.UseSimpleAssemblyNameTypeSerializer()
+					.UseRecommendedSerializerSettings()
+					.UseSqlServerStorage(configuration.GetConnectionString("Default")));
+
+			services.AddHangfireServer();
 
 			return services;
 		}

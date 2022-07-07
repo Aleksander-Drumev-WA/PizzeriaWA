@@ -1,120 +1,111 @@
-using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
-using Hangfire.SqlServer;
-using Mapster;
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Events;
 using System.Text;
-using WA.Pizza.Core.Models;
-using WA.Pizza.Infrastructure.BasketHandlers;
 using WA.Pizza.Infrastructure.Data;
-using WA.Pizza.Infrastructure.Data.Services;
-using WA.Pizza.Infrastructure.DTO.Catalog;
 using WA.Pizza.Infrastructure.Services.Mapster;
 using WA.Pizza.Web.BackgroundJobs;
 using WA.Pizza.Web.Extensions;
 using WA.Pizza.Web.Filters;
-using WA.Pizza.Web.Services.Validators;
+using WA.Pizza.Web.Hubs;
 
-
-
-var builder = WebApplication.CreateBuilder(args);
-
-var seqConfig = "Serilog:Seq:Url";
-
-Log.Logger = new LoggerConfiguration()
-	.MinimumLevel.Information()
-	.WriteTo.Console()
-	.WriteTo.Seq(builder.Configuration.GetSection(seqConfig).Value)
-	.CreateBootstrapLogger();
-
-builder.Host.UseSerilog();
-
-Log.Information("Starting up...");
-
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddFluentValidation();
-
-var tokenValidationParams = new TokenValidationParameters()
+try
 {
-	ValidateIssuer = true,
-	ValidateAudience = true,
-	ValidateLifetime = true,
-	ValidateIssuerSigningKey = true,
-	ValidAudience = builder.Configuration["JWT:ValidAudience"],
-	ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-	IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-};
+	var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
-	builder.Configuration.GetConnectionString("Default")
-	))
-	.AddIdentityService()
-	.AddJwtAuthentication(tokenValidationParams)
-	.AddSwaggerConfig();
+	var seqConfig = "Serilog:Seq:Url";
 
-builder.Services.AddSingleton(tokenValidationParams);
-builder.Services.AddScoped<CatalogDataService>();
-builder.Services.AddScoped<OrderDataService>();
-builder.Services.AddScoped<AuthenticationDataService>();
-builder.Services.AddScoped<AdvertisementDataService>();
-builder.Services.AddScoped<AdsClientDataService>();
-builder.Services.AddMediatR(typeof(GetBasketQuery));
+	var configuration = builder.Configuration;
 
-MappingConfig.Configure();
+	Log.Logger = new LoggerConfiguration()
+		.MinimumLevel.Information()
+		.WriteTo.Console()
+		.WriteTo.Seq(builder.Configuration.GetSection(seqConfig).Value)
+		.CreateBootstrapLogger();
+
+	builder.Host.UseSerilog();
+
+	Log.Information("Starting up...");
+
+	// Add services to the container.
+	builder.Services.AddControllers();
+	builder.Services.AddFluentValidation();
+
+	var tokenValidationParams = new TokenValidationParameters()
+	{
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidAudience = configuration["JWT:ValidAudience"],
+		ValidIssuer = configuration["JWT:ValidIssuer"],
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+	};
+
+	builder.Services.AddSingleton(tokenValidationParams);
+
+	builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
+		builder.Configuration.GetConnectionString("Default")
+		))
+		.AddIdentityService()
+		.InjectServices()
+		.AddJwtAuthentication(tokenValidationParams)
+		.AddSwaggerConfig()
+		.ConfigureCors()
+		.InjectHangfire(configuration);
+
+	MappingConfig.Configure();
+
+	var app = builder.Build();
+
+	// Configure the HTTP request pipeline.
+	if (!app.Environment.IsDevelopment())
+	{
+		app.UseExceptionHandler("/Home/Error");
+		// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+		app.UseHsts();
+	}
+	app.UseExceptionHandler(ab => ab.ExceptionHandlerConfigure(app.Environment));
+	app.SeedDatabase();
+	app.UseSerilogRequestLogging();
+	app.UseHttpsRedirection();
 
 
-builder.Services.AddHangfire(configuration => configuration
-		.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-		.UseSimpleAssemblyNameTypeSerializer()
-		.UseRecommendedSerializerSettings()
-		.UseSqlServerStorage(builder.Configuration.GetConnectionString("Default")));
+	app.UseRouting();
+	app.UseStaticFiles();
+	app.UseCors();
 
-builder.Services.AddHangfireServer();
+	app.UseSwagger();
+	app.UseSwaggerUI(s =>
+	{
+		s.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+	});
+	app.UseHangfireDashboard("/hangfire", new DashboardOptions
+	{
+		Authorization = new[] { new HangfireAuthorizationFilter() }
+	});
 
-var app = builder.Build();
+	app.UseAuthentication();
+	app.UseAuthorization();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-	app.UseExceptionHandler("/Home/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
+	RecurringJob.AddOrUpdate<ForgottenBasketsJob>("forgottenBasketsJob", job => job.RunAsync(), Cron.Weekly);
+
+	app.UseEndpoints(endpoints =>
+	{
+		endpoints.MapControllers();
+		endpoints.MapHub<ChatHub>("/hubs/chat");
+	});
+
+	await app.RunAsync();
 }
-app.UseExceptionHandler(ab => ab.ExceptionHandlerConfigure(app.Environment));
-app.UseSerilogRequestLogging();
-app.UseHttpsRedirection();
-
-app.UseSwagger();
-app.UseSwaggerUI(s =>
+catch (Exception ex)
 {
-	s.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-});
-
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
+	Log.Fatal(ex, "Application accidentally crashed!");
+	throw;
+}
+finally
 {
-	Authorization = new [] { new HangfireAuthorizationFilter() }
-});
-RecurringJob.AddOrUpdate<ForgottenBasketsJob>("forgottenBasketsJob", job => job.RunAsync(), Cron.Weekly);
-
-app.MapControllerRoute(
-	name: "default",
-	pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.SeedDatabase();
-app.Run();
-
-Log.CloseAndFlush();
-
-Console.ReadKey(true);
+	Log.CloseAndFlush();
+}
