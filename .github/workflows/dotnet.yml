@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: C:\Users\Asus\source\repos\CleanArchitecture
+        working-directory: CleanArchitecture.sln
 
     steps:
     - uses: actions/checkout@v3
