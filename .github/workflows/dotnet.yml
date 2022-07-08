@@ -2,9 +2,9 @@ name: .NET
 
 on:
   push:
-    branches: [ "feature/12-add-code-coverage" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "feature/12-add-code-coverage" ]
+    branches: [ "dev" ]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: CleanArchitecture.sln
+        working-directory: C:\Users\Asus\source\repos\CleanArchitecture
 
     steps:
     - uses: actions/checkout@v3
