@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: ./CleanArchitecture
+        working-directory: CleanArchitecture.sln
 
     steps:
     - uses: actions/checkout@v3
