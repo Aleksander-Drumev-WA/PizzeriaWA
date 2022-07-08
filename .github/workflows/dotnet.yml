@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: C:\Users\Asus\source\repos\CleanArchitecture
+        working-directory: ./CleanArchitecture
 
     steps:
     - uses: actions/checkout@v3
