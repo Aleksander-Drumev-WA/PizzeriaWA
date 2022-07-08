@@ -11,9 +11,6 @@ jobs:
   build:
 
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: C:\Users\Asus\source\repos\CleanArchitecture\Pizzeria.Tests
 
     steps:
     - uses: actions/checkout@v3
