@@ -23,6 +23,6 @@ jobs:
     - name: Build the stack
       run: docker-compose up -d
     - name: Test
-      run: docker run --network container:web-wapizza appropriate/curl -s --retry 10 --retry-connrefused http://localhost:5123/
+      run: docker run --network container:web-wapizza wa.pizza.web -s --retry 10 --retry-connrefused http://localhost:5123/
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
