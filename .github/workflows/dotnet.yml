@@ -23,6 +23,6 @@ jobs:
     - name: Build the stack
       run: docker-compose up -d
     - name: Test
-      run: docker run -w /app/Pizzeria.Tests/Pizzeria.Tests.csproj mcr.microsoft.com/dotnet/sdk:6.0 dotnet test
+      run: docker run /app/Pizzeria.Tests/Pizzeria.Tests.csproj
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
