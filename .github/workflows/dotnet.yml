@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: CleanArchitecture
+        working-directory: './PizzeriaWA'
 
     steps:
     - uses: actions/checkout@v3
