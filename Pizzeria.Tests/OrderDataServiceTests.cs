@@ -34,6 +34,8 @@ namespace Pizzeria.Tests
                 Email = Internet.Email("test"),
                 PasswordHash = Lorem.Sentence(8)
             };
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
             await _dbContext.Users.AddAsync(user);
             var catalogItems = Helper.GenerateCatalogItems(4, 40);
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
@@ -85,6 +87,8 @@ namespace Pizzeria.Tests
                 Email = Internet.Email("test"),
                 PasswordHash = Lorem.Sentence(8)
             };
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
             await _dbContext.Users.AddAsync(user);
             var catalogItems = Helper.GenerateCatalogItems(4, 40);
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
@@ -130,6 +134,8 @@ namespace Pizzeria.Tests
                 Email = Internet.Email("test"),
                 PasswordHash = Lorem.Sentence(8)
             };
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
             await _dbContext.Users.AddAsync(user);
             var catalogItems = Helper.GenerateCatalogItems(4, 40);
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
@@ -174,6 +180,8 @@ namespace Pizzeria.Tests
                 Email = Internet.Email("test"),
                 PasswordHash = Lorem.Sentence(8)
             };
+            user.NormalizedEmail = user.Email.ToUpper();
+            user.NormalizedUserName = user.UserName.ToUpper();
             await _dbContext.Users.AddAsync(user);
             var catalogItems = Helper.GenerateCatalogItems(4, 40);
             await _dbContext.CatalogItems.AddRangeAsync(catalogItems);
