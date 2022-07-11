@@ -10,9 +10,10 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
-    env:
-      working-directory: CleanArchitecture
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
 
     steps:
     - uses: actions/checkout@v3
