@@ -22,7 +22,7 @@ namespace Pizzeria.Tests.Fixtures
 
         public DatabaseFixture()
         {
-            _connection = new SqlConnection("Server=DESKTOP-5CAFU3F\\SQLEXPRESS;Database=WA.PizzaDB.Tests;Trusted_Connection=True;");
+            _connection = new SqlConnection("Server=mssql;Database=WA.PizzaDB.Tests;User=sa;Password=#sql-pass22_");
             _options = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(_connection.ConnectionString).Options;
             DbContext = new AppDbContext(_options);
             DbContext.Database.Migrate();
