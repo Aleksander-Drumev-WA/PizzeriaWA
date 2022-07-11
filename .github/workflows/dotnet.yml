@@ -23,6 +23,6 @@ jobs:
     - name: Build the stack
       run: docker-compose up -d
     - name: Test
-      run: docker run --network container:web-wapizza web-wapizza -s --retry 10 --retry-connrefused http://localhost:5123/
+      run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
