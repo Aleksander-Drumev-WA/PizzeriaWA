@@ -18,12 +18,12 @@ namespace Pizzeria.Tests.Fixtures
     {
         private DbContextOptions<AppDbContext> _options { get; set; }
 
-        private SqlConnection _connection { get; set; }
+        private string _connection { get; set; }
 
         public DatabaseFixture()
         {
-            _connection = new SqlConnection("Server=localhost,5121;Database=WA.PizzaDB.Tests;User=sa;Password=#sql-pass22_");
-            _options = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(_connection.ConnectionString).Options;
+            _connection = "Server=localhost,5121;Database=WA.PizzaDB.Tests;User=sa;Password=#sql-pass22_";
+            _options = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(_connection).Options;
             DbContext = new AppDbContext(_options);
             DbContext.Database.Migrate();
             MappingConfig.Configure();
