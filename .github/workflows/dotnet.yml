@@ -25,7 +25,6 @@ jobs:
     - job: RunTest
       pool:
         vmImage: 'ubuntu-latest'
-      steps:
 
     - task: DockerInstaller@0
       displayName: 'Docker installer'
