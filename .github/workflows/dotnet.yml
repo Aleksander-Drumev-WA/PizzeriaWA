@@ -22,20 +22,22 @@ jobs:
       run: dotnet restore CleanArchitecture.sln
     - name: Build
       run: dotnet build CleanArchitecture.sln --no-restore
-    - job: RunTest
+    - name: Test
+    job: RunTest
       pool:
         vmImage: 'ubuntu-latest'
+      steps:
 
-    - task: DockerInstaller@0
-      displayName: 'Docker installer'
-      inputs:
-        dockerVersion: '17.09.0-ce'
+      - task: DockerInstaller@0
+        displayName: 'Docker installer'
+        inputs:
+          dockerVersion: '17.09.0-ce'
 
-    - script: docker pull mcr.microsoft.com/mssql/server:2017-latest
-      displayName: 'docker pull mssql'
+      - script: docker pull mcr.microsoft.com/mssql/server:2017-latest
+        displayName: 'docker pull mssql'
 
-    - script: docker run --name sql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=#sql-pass22_' -e 'MSSQL_PID=Developer' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
-      displayName: 'docker run mssql'
+      - script: docker run --name sql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=#sql-pass22_' -e 'MSSQL_PID=Developer' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
+        displayName: 'docker run mssql'
       run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
