@@ -1,43 +1,39 @@
 name: .NET
-
-on:
+'on':
   push:
-    branches: [ "dev" ]
+    branches:
+      - dev
   pull_request:
-    branches: [ "dev" ]
-
-
+    branches:
+      - dev
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  - job: RunTest
+    pool:
+      vmImage: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore CleanArchitecture.sln
-    - name: Build
-      run: dotnet build CleanArchitecture.sln --no-restore
-    - name: Test
-    job: RunTest
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-
       - task: DockerInstaller@0
-        displayName: 'Docker installer'
+        displayName: Docker installer
         inputs:
-          dockerVersion: '17.09.0-ce'
-
-      - script: docker pull mcr.microsoft.com/mssql/server:2017-latest
-        displayName: 'docker pull mssql'
-
-      - script: docker run --name sql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=#sql-pass22_' -e 'MSSQL_PID=Developer' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
-        displayName: 'docker run mssql'
-      run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
-    - name: Codecov
-      uses: codecov/codecov-action@v1.5.2
+          dockerVersion: 17.09.0-ce
+      - script: 'docker pull mcr.microsoft.com/mssql/server:2017-latest'
+        displayName: docker pull mssql
+      - script: >-
+          docker run --name sql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=#sql-pass22_' -e
+          'MSSQL_PID=Developer' -p 1433:1433 -d
+          mcr.microsoft.com/mssql/server:2017-latest
+        displayName: docker run mssql
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore CleanArchitecture.sln
+      - name: Build
+        run: dotnet build CleanArchitecture.sln --no-restore
+      - name: Test
+        run: >-
+          dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build
+          --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Codecov
+        uses: codecov/codecov-action@v1.5.2
