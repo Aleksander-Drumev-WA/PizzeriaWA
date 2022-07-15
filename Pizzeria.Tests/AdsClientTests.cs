@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Pizzeria.Tests
 {
-	[Collection("Database collection")]
+	[Collection("In-Memory Database Collection")]
 	public class AdsClientTests
 	{
 		private readonly AppDbContext _dbContext;
@@ -30,7 +30,7 @@ namespace Pizzeria.Tests
 
 
 
-		public AdsClientTests(DatabaseFixture fixture)
+		public AdsClientTests(InMemoryDatabaseFixture fixture)
 		{
 			_dbContext = fixture.DbContext;
 			_adsClient = new AdsClient()

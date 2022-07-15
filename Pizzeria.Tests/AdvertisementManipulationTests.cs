@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Pizzeria.Tests
 {
-	[Collection("Database collection")]
+	[Collection("In-Memory Database Collection")]
 	public class AdvertisementManipulationTests
 	{
 		private readonly AppDbContext _dbContext;
@@ -27,7 +27,7 @@ namespace Pizzeria.Tests
 		private readonly AdsClient _adsClient;
 
 
-		public AdvertisementManipulationTests(DatabaseFixture databaseFixture)
+		public AdvertisementManipulationTests(InMemoryDatabaseFixture databaseFixture)
 		{
 			_dbContext = databaseFixture.DbContext;
 			var loggerMock = new Mock<ILogger<AdvertisementDataService>>();

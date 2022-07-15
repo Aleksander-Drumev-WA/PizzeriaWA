@@ -14,12 +14,12 @@ using WA.Pizza.Core.Exceptions;
 
 namespace Pizzeria.Tests
 {
-    [Collection("Database collection")]
+    [Collection("In-Memory Database Collection")]
     public class OrderDataServiceTests
     {
         private readonly AppDbContext _dbContext;
 
-        public OrderDataServiceTests(DatabaseFixture fixture)
+        public OrderDataServiceTests(InMemoryDatabaseFixture fixture)
         {
             _dbContext = fixture.DbContext;
         }

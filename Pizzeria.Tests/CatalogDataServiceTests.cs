@@ -15,12 +15,12 @@ using System.Linq;
 
 namespace Pizzeria.Tests
 {
-    [Collection("Database collection")]
+    [Collection("In-Memory Database Collection")]
     public class CatalogDataServiceTests
     {
         private readonly AppDbContext _dbContext;
 
-        public CatalogDataServiceTests(DatabaseFixture fixture)
+        public CatalogDataServiceTests(InMemoryDatabaseFixture fixture)
         {
             _dbContext = fixture.DbContext;
         }
