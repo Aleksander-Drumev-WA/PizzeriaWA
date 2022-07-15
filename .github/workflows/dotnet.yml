@@ -26,3 +26,4 @@ jobs:
       run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
+
