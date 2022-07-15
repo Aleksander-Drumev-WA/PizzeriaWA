@@ -1,0 +1,106 @@
+  
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger: 
+  batch: true
+  branches:
+   include:
+    - master
+    - dev
+    - release/*
+    - hotfix/*
+
+pr:
+- dev
+- story/*
+
+variables:
+  project: 'Pixxles.MiddleTier/Pixxles.MiddleTier.Api'
+  testProjects: 'Pixxles.MiddleTier/Tests/**/*.csproj'
+  buildplatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+jobs:
+  - job: RunTest
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+
+    - task: DockerInstaller@0
+      displayName: 'Docker installer'
+      inputs:
+        dockerVersion: '17.09.0-ce'
+
+    - script: docker pull mcr.microsoft.com/mssql/server:2017-latest
+      displayName: 'docker pull mssql'
+
+    - script: docker run --name sql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Gfhjkm12' -e 'MSSQL_PID=Developer' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2017-latest
+      displayName: 'docker run mssql'
+
+    - script: docker pull redis
+      displayName: 'docker pull redis'
+
+    - script: docker run -p 6379:6379 --name redis-test -d redis
+      displayName: 'docker run redis'
+
+    - script: sleep 10
+      displayName: 'sleep 10'
+
+    - task: UseDotNet@2
+      displayName: "Use .NET 6.x"
+      inputs:
+        packageType: sdk
+        useGlobalJson: true
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore'
+      inputs:
+        command: 'restore'
+        projects: '$(testProjects)'
+        arguments: -r linux-x64
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
+      inputs:
+        command: 'build'
+        projects: '$(testProjects)'
+        arguments: '-r linux-x64 -c $(buildConfiguration) --no-restore'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Run tests'
+      inputs:
+        command: 'test'
+        projects: '$(testProjects)'
+        arguments: '--runtime linux-x64 -c $(buildConfiguration) --no-build --no-restore --nologo --verbosity normal --blame-hang-timeout 20m /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+
+  - job: Build
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+        - powershell: |
+            $gitTag = (git tag --sort=-creatordate)[0]
+            echo "##vso[task.setvariable variable=gitTag;isOutput=true]$gitTag"
+          name: createTagVariableStep
+        - task: UseDotNet@2
+          displayName: "Use .NET 6.x"
+          inputs:
+            packageType: sdk
+            useGlobalJson: true
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Create publish package'
+          inputs:
+            command: 'publish'
+            publishWebProjects: false
+            projects: '$(project)'
+            arguments: '-r win-x64 -c $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/artifacts -p:BuildNumber=$(Build.BuildId) -p:LastTag=$(createTagVariableStep.gitTag)'
+
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish artifacts'
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)/artifacts'
+            ArtifactName: 'artifacts'
+            publishLocation: 'Container'
