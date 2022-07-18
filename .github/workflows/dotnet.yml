@@ -22,6 +22,8 @@ jobs:
     - name: Build
       run: dotnet build CleanArchitecture.sln --no-restore
     - name: Test
-      run: dotnet test CleanArchitecture.sln --verbosity normal --collect:"XPlat Code Coverage"
+      id: Test
+      run: dotnet test CleanArchitecture.sln --no-build --verbosity normal --collect:"XPlat Code Coverage"
     - name: Codecov
+      if: steps.Test.outcome != 'success'
       uses: codecov/codecov-action@v1.5.2
