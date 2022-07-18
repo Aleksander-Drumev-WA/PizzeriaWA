@@ -21,10 +21,10 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore CleanArchitecture.sln
+      run: dotnet restore
     - name: Build
-      run: dotnet build CleanArchitecture.sln --no-restore
+      run: dotnet build  --no-restore
     - name: Test
-      run: dotnet test CleanArchitecture.sln --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
