@@ -23,6 +23,7 @@ namespace Pizzeria.Tests
         public CatalogDataServiceTests(InMemoryDatabaseFixture fixture)
         {
             _dbContext = fixture.DbContext;
+
         }
 
         [Fact]
