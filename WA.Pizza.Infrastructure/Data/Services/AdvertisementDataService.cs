@@ -38,7 +38,7 @@ namespace WA.Pizza.Infrastructure.Data.Services
 		{
 			var ad = adRequest.Adapt<Advertisement>();
 
-			var client = _dbContext.AdsClients.FirstAsync(i => i.ApiKey == apiKey);
+			var client = await _dbContext.AdsClients.FirstAsync(i => i.ApiKey == apiKey);
 			ad.AdsClientId = client.Id;
 
 			_dbContext.Advertisements.Add(ad);

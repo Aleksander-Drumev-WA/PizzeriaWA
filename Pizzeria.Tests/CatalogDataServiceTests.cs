@@ -15,38 +15,28 @@ using System.Linq;
 
 namespace Pizzeria.Tests
 {
-    [Collection("In-Memory Database Collection")]
-    public class CatalogDataServiceTests
-    {
-        private readonly AppDbContext _dbContext;
+	public class CatalogDataServiceTests
+	{
 
-        public CatalogDataServiceTests(InMemoryDatabaseFixture fixture)
-        {
-            _dbContext = fixture.DbContext;
+		[Fact]
+		public async Task Show_catalog_items_successfully()
+		{
+			// Arrange
+			using (var fixture = new InMemoryDatabaseFixture())
+			{
+				var dbContext = fixture.DbContext;
+				var catalogItemsToPass = Helper.GenerateCatalogItems(4, 25);
+				dbContext.CatalogItems.AddRange(catalogItemsToPass);
+				await dbContext.SaveChangesAsync();
+				var sut = new CatalogDataService(dbContext);
 
-        }
+				// Act
+				var catalogItems = await sut.GetAllAsync();
 
-        [Fact]
-        public async Task Show_catalog_items_successfully()
-        {
-            // Arrange
-            var catalogItemsToPass = Helper.GenerateCatalogItems(4, 25);
-            await _dbContext.CatalogItems.AddRangeAsync(catalogItemsToPass);
-            await _dbContext.SaveChangesAsync();
-            var sut = new CatalogDataService(_dbContext);
+				// Assert
+				catalogItems.Should().BeEquivalentTo(dbContext.CatalogItems, options => options.ExcludingMissingMembers());
 
-            // Act
-            var catalogItems = await sut.GetAllAsync();
-
-            // Assert
-            var catalogItemToAssert = await _dbContext.CatalogItems.FindAsync(catalogItems.First().Id);
-            var comparisonItem = catalogItemsToPass.First();
-            catalogItems
-                .Should()
-                .NotBeEmpty()
-                .And
-                .HaveCount(4);
-            catalogItemToAssert.Should().BeEquivalentTo(comparisonItem);
-        }
-    }
+			}
+		}
+	}
 }

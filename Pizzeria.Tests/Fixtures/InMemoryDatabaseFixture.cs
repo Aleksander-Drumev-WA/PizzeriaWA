@@ -1,17 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
+using System.Threading.Tasks;
 using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Services.Mapster;
 using Xunit;
 
 namespace Pizzeria.Tests.Fixtures
 {
-	[CollectionDefinition("In-Memory Database Collection")]
-	public class InMemoryDatabaseCollection : ICollectionFixture<InMemoryDatabaseFixture>
-	{
-
-	}
-
 	public class InMemoryDatabaseFixture : IDisposable
 	{
 		private readonly AppDbContext _dbContext;
@@ -30,7 +25,7 @@ namespace Pizzeria.Tests.Fixtures
 
 		public void Dispose()
 		{
-			_dbContext.Database.EnsureCreated();
+			DbContext.Database.EnsureDeleted();
 		}
 	}
 }

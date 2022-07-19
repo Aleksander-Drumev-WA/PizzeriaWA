@@ -23,6 +23,5 @@ jobs:
       run: dotnet build CleanArchitecture.sln --no-restore
     - name: Test
       run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
-      continue-on-error: true
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
