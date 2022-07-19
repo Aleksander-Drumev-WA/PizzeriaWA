@@ -29,4 +29,4 @@ jobs:
       uses: slavcodev/coverage-monitor-action@v1
       with:
         github_token: ${{ secrets.TOKEN }}
-        coverage_path: "./coverage.cobertura.xml"
+        coverage_path: "./Pizzeria.Tests/TestResults/*/coverage.cobertura.xml"
