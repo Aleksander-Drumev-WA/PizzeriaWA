@@ -25,8 +25,3 @@ jobs:
       run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
     - name: Codecov
       uses: codecov/codecov-action@v1.5.2
-    - name: Monitor coverage
-      uses: slavcodev/coverage-monitor-action@v1
-      with:
-        github_token: ${{ secrets.TOKEN }}
-        coverage_path: "./Pizzeria.Tests/TestResults/./coverage.cobertura.xml"
