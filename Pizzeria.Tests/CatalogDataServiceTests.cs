@@ -22,7 +22,7 @@ namespace Pizzeria.Tests
 		public async Task Show_catalog_items_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var catalogItemsToPass = Helper.GenerateCatalogItems(4, 25);

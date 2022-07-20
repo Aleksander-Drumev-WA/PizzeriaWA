@@ -21,7 +21,7 @@ namespace Pizzeria.Tests
 		public async Task User_creates_order()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var user = new User
@@ -80,7 +80,7 @@ namespace Pizzeria.Tests
 		public async Task User_gets_all_his_orders()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var user = new User
@@ -133,7 +133,7 @@ namespace Pizzeria.Tests
 		public async Task User_changes_order_status()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var user = new User
@@ -185,7 +185,7 @@ namespace Pizzeria.Tests
 		public async Task User_gets_one_of_his_orders()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var user = new User
@@ -240,7 +240,7 @@ namespace Pizzeria.Tests
 		public async Task Anonymous_user_tries_to_create_order()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var catalogItems = Helper.GenerateCatalogItems(4, 40);

@@ -8,11 +8,11 @@ using Xunit;
 
 namespace Pizzeria.Tests.Fixtures
 {
-    [CollectionDefinition("Database collection")]
-    public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
-    {
+    //[CollectionDefinition("Database collection")]
+    //public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
+    //{
 
-    }
+    //}
 
     public class DatabaseFixture : IDisposable
     {
@@ -22,7 +22,7 @@ namespace Pizzeria.Tests.Fixtures
 
         public DatabaseFixture()
         {
-            _connection = new SqlConnection("Server=localhost,5121;Database=WA.PizzaDB.Tests;Trusted_Connection=False;MultipleActiveResultSets=true;User=sa;Password=#sql-pass22_;TrustServerCertificate=True");
+            _connection = new SqlConnection("Server=(local);Database=WA.PizzaDB.Tests;Trusted_Connection=False;MultipleActiveResultSets=true;User=sa;Password=#sql-pass22_;TrustServerCertificate=True");
             _options = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(_connection.ConnectionString).Options;
             DbContext = new AppDbContext(_options);
             DbContext.Database.Migrate();

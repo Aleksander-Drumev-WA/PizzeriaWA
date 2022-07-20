@@ -24,7 +24,7 @@ namespace Pizzeria.Tests
 		public async Task Create_advertisement_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var loggerMock = new Mock<ILogger<AdvertisementDataService>>();
@@ -62,7 +62,7 @@ namespace Pizzeria.Tests
 		public async Task Editing_existing_ad_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var loggerMock = new Mock<ILogger<AdvertisementDataService>>();
@@ -110,7 +110,7 @@ namespace Pizzeria.Tests
 		public async Task Get_all_advertisements_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var loggerMock = new Mock<ILogger<AdvertisementDataService>>();

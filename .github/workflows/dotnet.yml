@@ -1,27 +1,34 @@
 name: .NET
-
-on:
+'on':
   push:
-    branches: [ "dev" ]
+    branches:
+      - dev
   pull_request:
-    branches: [ "dev" ]
-
-
+    branches:
+      - dev
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore CleanArchitecture.sln
-    - name: Build
-      run: dotnet build CleanArchitecture.sln --no-restore
-    - name: Test
-      run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage"
-    - name: Codecov
-      uses: codecov/codecov-action@v1.5.2
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore CleanArchitecture.sln
+      - name: Build
+        run: dotnet build CleanArchitecture.sln --no-restore
+      - name: Test
+      - uses: 'docker://mcr.microsoft.com/mssql/server:2017-latest'
+        with:
+          name: sql
+          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: '#sql-pass22_'
+          MSSQL_PID: Developer
+          port: '1433:1433'
+          run: >-
+            dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build
+            --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Codecov
+        uses: codecov/codecov-action@v1.5.2

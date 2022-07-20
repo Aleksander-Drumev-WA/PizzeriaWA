@@ -26,7 +26,7 @@ namespace Pizzeria.Tests
 		public async Task Get_all_clients_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var adsClientDataService = new AdsClientDataService(dbContext);
@@ -67,7 +67,7 @@ namespace Pizzeria.Tests
 		public async Task Get_client_with_its_advertisements()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var adsClientDataService = new AdsClientDataService(dbContext);
@@ -129,7 +129,7 @@ namespace Pizzeria.Tests
 		public async Task Create_client_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var adsClientDataService = new AdsClientDataService(dbContext);
@@ -157,7 +157,7 @@ namespace Pizzeria.Tests
 		public async Task Edit_existing_client_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var adsClientDataService = new AdsClientDataService(dbContext);
@@ -193,7 +193,7 @@ namespace Pizzeria.Tests
 		public async Task Delete_existing_client_successfully()
 		{
 			// Arrange
-			using (var fixture = new InMemoryDatabaseFixture())
+			using (var fixture = new DatabaseFixture())
 			{
 				var dbContext = fixture.DbContext;
 				var adsClientDataService = new AdsClientDataService(dbContext);
