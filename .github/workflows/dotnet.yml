@@ -25,7 +25,7 @@ jobs:
           image: mcr.microsoft.com/mssql/server:2017-latest
           options: -v ${{ github.workspace }}:/var/www
           run: >-
-            dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build
+            dotnet test /var/www/Pizzeria.Tests/Pizzeria.Tests.csproj --no-build
             --verbosity normal --collect:"XPlat Code Coverage"
       - name: Codecov
         uses: codecov/codecov-action@v1.5.2
