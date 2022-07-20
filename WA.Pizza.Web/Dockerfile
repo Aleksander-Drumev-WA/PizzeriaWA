@@ -16,7 +16,7 @@ RUN dotnet restore "WA.Pizza.Web/WA.Pizza.Web.csproj"
 COPY . .
 WORKDIR "/src/WA.Pizza.Web"
 RUN dotnet build "WA.Pizza.Web.csproj" -c Release -o /app/build
-RUN dotnet test "Pizzeria.Tests/Pizzeria.Tests.csproj" -o /app/build --no-build --verbosity normal --collect:"XPlat Code Coverage"
+RUN dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
 
 
 FROM build AS publish
