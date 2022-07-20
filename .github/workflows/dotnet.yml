@@ -11,23 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: 6.0.x
-      
-      
-      - name: Run the build process with Docker
-        uses: addnab/docker-run-action@v3
-        with:
-          image: mcr.microsoft.com/mssql/server:2017-latest
-          options: -v ${{ github.workspace }}:/var/www
-          run: dotnet restore /var/www/CleanArchitecture.sln
-      - name: Build
-        run: dotnet build /var/www/CleanArchitecture.sln --no-restore
+      - name: Setup Docker
+        uses: docker-compose up -d
       - name: Test
         run: >-
-            dotnet test /var/www/Pizzeria.Tests/Pizzeria.Tests.csproj --no-build
+            dotnet test ./CleanArchitecture.sln --no-build
             --verbosity normal --collect:"XPlat Code Coverage"
       - name: Codecov
         uses: codecov/codecov-action@v1.5.2
