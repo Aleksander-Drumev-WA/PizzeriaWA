@@ -15,7 +15,7 @@ jobs:
         run: docker-compose up -d
       - name: Test
         run: >-
-            dotnet test /app/publish/CleanArchitecture.sln --no-build
+            dotnet test /src/Pizzeria.Tests/Pizzeria.Tests.csproj --no-build
             --verbosity normal --collect:"XPlat Code Coverage"
       - name: Codecov
         uses: codecov/codecov-action@v1.5.2
