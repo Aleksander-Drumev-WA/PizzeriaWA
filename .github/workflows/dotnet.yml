@@ -19,14 +19,11 @@ jobs:
         run: dotnet restore CleanArchitecture.sln
       - name: Build
         run: dotnet build CleanArchitecture.sln --no-restore
-      - name: Test
-      - uses: 'docker://mcr.microsoft.com/mssql/server:2017-latest'
+      - name: Run the build process with Docker
+        uses: addnab/docker-run-action@v3
         with:
-          name: sql
-          ACCEPT_EULA: 'Y'
-          SA_PASSWORD: '#sql-pass22_'
-          MSSQL_PID: Developer
-          port: '1433:1433'
+          image: mcr.microsoft.com/mssql/server:2017-latest
+          options: -v ${{ github.workspace }}:/var/www
           run: >-
             dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --no-build
             --verbosity normal --collect:"XPlat Code Coverage"
