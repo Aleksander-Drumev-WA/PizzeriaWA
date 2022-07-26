@@ -15,28 +15,32 @@ using System.Linq;
 
 namespace Pizzeria.Tests
 {
+	[Collection("Database collection")]
 	public class CatalogDataServiceTests
 	{
+		private readonly DatabaseFixture _fixture;
+
+		public CatalogDataServiceTests(DatabaseFixture fixture)
+		{
+			_fixture = fixture;
+		}
 
 		[Fact]
 		public async Task Show_catalog_items_successfully()
 		{
 			// Arrange
-			using (var fixture = new DatabaseFixture())
-			{
-				var dbContext = fixture.DbContext;
-				var catalogItemsToPass = Helper.GenerateCatalogItems(4, 25);
-				dbContext.CatalogItems.AddRange(catalogItemsToPass);
-				await dbContext.SaveChangesAsync();
-				var sut = new CatalogDataService(dbContext);
+			var dbContext = _fixture.DbContext;
+			var catalogItemsToPass = Helper.GenerateCatalogItems(4, 25);
+			dbContext.CatalogItems.AddRange(catalogItemsToPass);
+			await dbContext.SaveChangesAsync();
+			var sut = new CatalogDataService(dbContext);
 
-				// Act
-				var catalogItems = await sut.GetAllAsync();
+			// Act
+			var catalogItems = await sut.GetAllAsync();
 
-				// Assert
-				catalogItems.Should().BeEquivalentTo(dbContext.CatalogItems, options => options.ExcludingMissingMembers());
+			// Assert
+			catalogItems.Should().BeEquivalentTo(dbContext.CatalogItems, options => options.ExcludingMissingMembers());
 
-			}
 		}
 	}
 }
