@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Respawn;
-using Respawn.Graph;
 using WA.Pizza.Infrastructure.Data;
 using WA.Pizza.Infrastructure.Services.Mapster;
 using Xunit;
@@ -18,15 +15,6 @@ namespace Pizzeria.Tests.Fixtures
 
 	public class DatabaseFixture : IDisposable
 	{
-
-		private static Checkpoint checkpoint = new Checkpoint()
-		{
-			DbAdapter = DbAdapter.SqlServer,
-			TablesToIgnore = new Table[]
-			{
-				"__EFMigrationsHistory"
-			}
-		};
 		private DbContextOptions<AppDbContext> _options { get; set; }
 
 		private SqlConnection _connection { get; set; }
@@ -42,7 +30,7 @@ namespace Pizzeria.Tests.Fixtures
 
 		public void Dispose()
 		{
-			checkpoint.Reset(_connection.ConnectionString).GetAwaiter().GetResult();
+			DbContext.Database.EnsureDeleted();
 		}
 
 		public AppDbContext DbContext { get; private set; }

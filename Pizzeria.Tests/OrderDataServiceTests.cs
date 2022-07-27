@@ -72,7 +72,18 @@ namespace Pizzeria.Tests
 			var basketToAssert = await dbContext.Baskets.FindAsync(basket.Id);
 			orderToAssert.Should().NotBeNull();
 			orderToAssert!.OrderItems.Should().HaveCount(basketItemsBeforeCleaning.Count);
-			orderToAssert.OrderItems.Should().BeEquivalentTo(basketItemsBeforeCleaning, options => options.ExcludingMissingMembers());
+			//orderToAssert.OrderItems.Should().BeEquivalentTo(basketItemsBeforeCleaning, options => options.ExcludingMissingMembers());
+
+			foreach (var orderItem in orderToAssert.OrderItems)
+			{
+				var currentBasketItem = basketItemsBeforeCleaning.First();
+
+				orderItem.CatalogItemId.Should().Be(currentBasketItem.Id);
+				orderItem.Name.Should().Be(currentBasketItem.Name);
+				orderItem.Price.Should().Be(currentBasketItem.Price);
+
+				basketItemsBeforeCleaning.Remove(currentBasketItem);
+			}
 			orderToAssert.OrderItems.All(oi => oi.CatalogItem.StorageQuantity == resultQuantity).Should().BeTrue();
 			basketToAssert!.BasketItems.Should().NotBeNull();
 			basketToAssert.BasketItems.Should().BeEmpty();
@@ -225,7 +236,7 @@ namespace Pizzeria.Tests
 			order.Should().NotBeNull();
 			order.OrderItems.All(oi => oi != null).Should().BeTrue();
 			order.OrderItems.Should().HaveCount(basketItemsBeforeCleaningIt.Count);
-			order.OrderItems.Should().BeEquivalentTo(basketItemsBeforeCleaningIt, options => options.ExcludingMissingMembers());
+			order.OrderItems.Should().BeEquivalentTo(basketItemsBeforeCleaningIt, options => options.ExcludingMissingMembers().Excluding(x => x.CatalogItemId));
 
 		}
 

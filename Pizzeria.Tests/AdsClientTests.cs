@@ -47,28 +47,36 @@ namespace Pizzeria.Tests
 		public async Task Get_all_clients_successfully()
 		{
 			// Arrange
+			var dbClientRows = _dbContext.AdsClients.Count();
+
 			var newClients = new List<AdsClient>
+			{
+				new AdsClient
 				{
-					new AdsClient
-					{
-						Name = "Fanta",
-						Website = "https://example.com",
-						ApiKey = Guid.NewGuid()
-					},
-					_adsClient
-				};
+					Name = "Fanta",
+					Website = "https://example.com",
+					ApiKey = Guid.NewGuid()
+				},
+				_adsClient
+			};
 
 			_dbContext.AdsClients.AddRange(newClients);
 			_dbContext.SaveChanges();
+			dbClientRows += newClients.Count;
 
 			// Act
 			var clients = await _sut.GetAllClients();
 
 			// Assert
-
 			clients.Should().NotBeNull();
-			clients.Should().HaveCount(2);
-			clients.Should().BeEquivalentTo(newClients, options => options.ExcludingMissingMembers());
+			clients.Should().HaveCount(dbClientRows);
+			for (int i = clients.Count - newClients.Count; i < clients.Count - 1; i++)
+			{
+				clients[i].Id.Should().Be(newClients[i - newClients.Count].Id);
+				clients[i].Name.Should().Be(newClients[i - newClients.Count].Name);
+				clients[i].Website.Should().Be(newClients[i - newClients.Count].Website);
+				clients[i].ApiKey.Should().Be(newClients[i - newClients.Count].ApiKey);
+			}
 
 		}
 
