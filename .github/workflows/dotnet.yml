@@ -1,31 +1,19 @@
 name: .NET
-
-on:
+'on':
   push:
-    branches: [ "dev" ]
+    branches:
+      - dev
   pull_request:
-    branches: [ "dev" ]
-
-
+    branches:
+      - dev
 jobs:
   build:
-
-    runs-on: windows-latest
-    env:
-      working-directory: CleanArchitecture
-
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-      working-directory: ${{env.working-directory}}
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
-    - name: Codecov
-      uses: codecov/codecov-action@v1.5.2
+      - uses: actions/checkout@v3
+      - name: Setup Docker
+        run: docker-compose up -d
+      - name: Test
+        run: dotnet test Pizzeria.Tests/Pizzeria.Tests.csproj --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Codecov
+        uses: codecov/codecov-action@v1.5.2

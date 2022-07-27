@@ -20,50 +20,60 @@ namespace Pizzeria.Tests
 	[Collection("Database collection")]
 	public class AdvertisementManipulationTests
 	{
+		private readonly DatabaseFixture _fixture;
 		private readonly AppDbContext _dbContext;
+		private readonly Mock<ILogger<AdvertisementDataService>> _loggerMock;
 		private readonly AdvertisementDataService _adDataService;
-		private readonly CreateAdvertisementRequest _postRequest;
 		private readonly AdsController _sut;
+		private readonly CreateAdvertisementRequest _postRequest;
 		private readonly AdsClient _adsClient;
 
-
-		public AdvertisementManipulationTests(DatabaseFixture databaseFixture)
+		public AdvertisementManipulationTests(DatabaseFixture fixture)
 		{
-			_dbContext = databaseFixture.DbContext;
-			var loggerMock = new Mock<ILogger<AdvertisementDataService>>();
-			_adDataService = new AdvertisementDataService(_dbContext, loggerMock.Object);
+			_fixture = fixture;
+			_dbContext = fixture.DbContext;
+			_loggerMock = new Mock<ILogger<AdvertisementDataService>>();
+			_adDataService = new AdvertisementDataService(_dbContext, _loggerMock.Object);
 			_sut = new AdsController(_adDataService);
-			_adsClient = new AdsClient()
-			{
-				Name = "Coca cola",
-				Website = "https://coca-cola.com",
-				ApiKey = Guid.NewGuid()
-			};
 			_postRequest = new CreateAdvertisementRequest()
 			{
 				Title = "Fresh Drink",
 				Description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book",
 				PictureBytes = _adDataService.UrlToImageBytes("https://www.bulmag.org/files/products-v2/2/review/44d89b29f34023e5b36029b7e6ab4273.jpg").GetAwaiter().GetResult(),
 			};
-
+			_adsClient = new AdsClient()
+			{
+				Name = "Coca cola",
+				Website = "https://coca-cola.com",
+				ApiKey = Guid.NewGuid()
+			};
 		}
 
 		[Fact]
 		public async Task Create_advertisement_successfully()
 		{
 			// Arrange
-			_dbContext.AdsClients.Add(_adsClient);
+			var adsClient = new AdsClient()
+			{
+				Name = "Coca cola",
+				Website = "https://coca-cola.com",
+				ApiKey = Guid.NewGuid()
+			};
+			_dbContext.AdsClients.Add(adsClient);
 			await _dbContext.SaveChangesAsync();
 
 			// Act
-			var result = await _sut.Create(_postRequest, _adsClient.ApiKey) as CreatedResult;
+			var result = await _sut.Create(_postRequest, adsClient.ApiKey) as CreatedResult;
+
 
 			// Assert
 			var adToAssert = await _dbContext.Advertisements.AsNoTracking().SingleAsync(a => a.Id == (int)result!.Value!);
 			adToAssert.Should().NotBeNull();
 			adToAssert.Description.Should().Be(_postRequest.Description);
 			adToAssert.Title.Should().Be(_postRequest.Title);
-			adToAssert.AdsClientId.Should().Be(_adsClient.Id);
+			adToAssert.AdsClientId.Should().Be(adsClient.Id);
+
+
 		}
 
 		[Fact]
@@ -92,6 +102,9 @@ namespace Pizzeria.Tests
 			adToAssert.Title.Should().Be(putRequest.Title);
 			adToAssert.Description.Should().Be(putRequest.Description);
 			adToAssert.PictureBytes.Should().Be(_postRequest.PictureBytes);
+
+
+
 		}
 
 		[Fact]
@@ -119,6 +132,7 @@ namespace Pizzeria.Tests
 			// Assert
 			ads!.Value.Should().NotBeNull();
 			ads!.Value.Should().BeEquivalentTo(_adsClient.Advertisements.Adapt<List<AdvertisementDTO>>());
+
 
 		}
 	}

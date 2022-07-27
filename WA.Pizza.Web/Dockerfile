@@ -11,10 +11,12 @@ WORKDIR /src
 COPY ["WA.Pizza.Web/WA.Pizza.Web.csproj", "WA.Pizza.Web/"]
 COPY ["WA.Pizza.Infrastructure/WA.Pizza.Infrastructure.csproj", "WA.Pizza.Infrastructure/"]
 COPY ["WA.Pizza.Core/WA.Pizza.Core.csproj", "WA.Pizza.Core/"]
+COPY ["Pizzeria.Tests/Pizzeria.Tests.csproj", "Pizzeria.Tests/"]
 RUN dotnet restore "WA.Pizza.Web/WA.Pizza.Web.csproj"
 COPY . .
 WORKDIR "/src/WA.Pizza.Web"
 RUN dotnet build "WA.Pizza.Web.csproj" -c Release -o /app/build
+
 
 
 FROM build AS publish
